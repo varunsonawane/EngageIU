@@ -3,6 +3,9 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from models import Student, Event, Attendance, EventCode
 
+# Varied point values cycling across events — same logic as update_points.py
+POINTS_CYCLE = [50, 10, 25, 30, 15, 40, 20, 35, 5, 45]
+
 
 def utcnow():
     return datetime.now(timezone.utc).replace(tzinfo=None)
@@ -667,6 +670,10 @@ def seed_data(db: Session):
             event_date=now + timedelta(days=30, hours=9),
         ),
     ]
+    # Apply varied point values (same cycle as update_points.py)
+    for i, ev in enumerate(events):
+        ev.points = POINTS_CYCLE[i % len(POINTS_CYCLE)]
+
     db.add_all(events)
     db.flush()
 
