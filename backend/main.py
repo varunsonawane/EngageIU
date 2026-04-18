@@ -101,6 +101,7 @@ if os.path.isdir(FRONTEND_DIR):
     @app.get("/admin", include_in_schema=False)
     async def serve_admin():
         return FileResponse(os.path.join(FRONTEND_DIR, "admin.html"))
+
 if os.path.isdir(FRONTEND_DIR):
     app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
