@@ -324,56 +324,69 @@ async def get_leaderboard(
     enriched = _enrich_rows(rows, prev_ranks)
 
     if format == "html":
-        week_label = f"{week_start.strftime('%b %d')} - {week_end.strftime('%b %d, %Y')}"
+        week_label = f"{week_start.strftime('%b %d')} to {week_end.strftime('%b %d, %Y')}"
         campus_label = campus or "All Campuses"
         rows_html = ""
         medal = {1: "🥇", 2: "🥈", 3: "🥉"}
 
-        def trend_arrow(rc):
+        def trend_cell(rc):
             if rc is None:
-                return "<span style='color:#1565c0;font-size:0.7rem;font-weight:700'>NEW</span>"
+                return ""
             if rc > 0:
-                return f"<span style='color:#4caf50'>&#9650; {rc}</span>"
+                return f"<span style='color:#16a34a;font-size:0.75rem;font-weight:600'>+{rc}</span>"
             if rc < 0:
-                return f"<span style='color:#f44336'>&#9660; {abs(rc)}</span>"
-            return "<span style='color:#9ca3af'>&#8212;</span>"
+                return f"<span style='color:#dc2626;font-size:0.75rem;font-weight:600'>{rc}</span>"
+            return ""
 
-        def badge_html(badges):
-            label = {"top": "👑 Top", "rising": "📈 Rising", "dedicated": "⚡ Dedicated", "consistent": "⭐ Consistent"}
-            return " ".join(f"<span style='background:#f3f4f6;border-radius:99px;padding:1px 6px;font-size:0.65rem;font-weight:600'>{label[b]}</span>" for b in badges if b in label)
+        def rising_tag(badges):
+            if "rising" in badges:
+                return "<span style='color:#16a34a;font-size:0.7rem;margin-left:4px'>rising</span>"
+            return ""
 
         for r in enriched:
             icon = medal.get(r["rank"], "")
+            trend = trend_cell(r.get("rank_change"))
+            rising = rising_tag(r.get("badges", []))
             rows_html += (
                 f"<tr class='rank-{r['rank']}'>"
-                f"<td>{icon} {r['rank']} {trend_arrow(r.get('rank_change'))}</td>"
-                f"<td>{r['name']}<br><small>{badge_html(r.get('badges', []))}</small></td>"
-                f"<td>{r['iu_username']}</td>"
+                f"<td style='white-space:nowrap'>{icon} {r['rank']} {trend}</td>"
+                f"<td>{r['name']}{rising}</td>"
+                f"<td style='color:#666'>@{r['iu_username']}</td>"
                 f"<td>{r['campus']}</td>"
-                f"<td>{r['events_attended']}</td>"
-                f"<td><strong>{r['total_points']}</strong></td>"
+                f"<td style='text-align:center'>{r['events_attended']}</td>"
+                f"<td style='text-align:center'><strong>{r['total_points']}</strong></td>"
                 f"</tr>"
             )
         html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>EngageIU Leaderboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="2">
+<link rel="icon" type="image/png" href="https://assets.iu.edu/brand/3.3.x/trident-large.png">
+<title>EngageIU · Weekly Leaderboard</title>
 <style>
-  body {{ font-family: 'Segoe UI', sans-serif; background: #f5f5f5; padding: 2rem; }}
-  h1 {{ color: #990000; }}
-  h2 {{ color: #444; font-weight: normal; font-size: 1rem; }}
+  body {{ font-family: 'Segoe UI', sans-serif; background: #f5f5f5; padding: 2rem; margin: 0; }}
+  h1 {{ color: #990000; margin-bottom: 0.25rem; }}
+  .meta {{ color: #555; font-size: 0.95rem; margin-bottom: 1.5rem; }}
+  .live-pill {{ display: inline-flex; align-items: center; gap: 5px; background: #f0fdf4;
+               border: 1px solid #bbf7d0; border-radius: 99px; padding: 2px 10px;
+               font-size: 0.75rem; font-weight: 600; color: #16a34a; margin-left: 12px; }}
+  .dot {{ width: 7px; height: 7px; background: #16a34a; border-radius: 50%;
+          animation: pulse 1.5s infinite; }}
+  @keyframes pulse {{ 0%,100%{{opacity:1}} 50%{{opacity:0.3}} }}
   table {{ border-collapse: collapse; width: 100%; max-width: 900px; background: #fff;
            box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }}
-  th {{ background: #990000; color: #fff; padding: 12px 16px; text-align: left; }}
-  td {{ padding: 12px 16px; border-bottom: 1px solid #eee; vertical-align: middle; }}
-  tr.rank-1 {{ background: #fff8f8; font-weight: bold; }}
-  tr:hover {{ background: #fafafa; }}
+  th {{ background: #990000; color: #fff; padding: 12px 16px; text-align: left; font-size: 0.9rem; }}
+  td {{ padding: 11px 16px; border-bottom: 1px solid #eee; vertical-align: middle; }}
+  tr.rank-1 td {{ background: #fff8f8; font-weight: 600; }}
+  tr:hover td {{ background: #fafafa; }}
+  .refresh-note {{ margin-top: 0.75rem; color: #9ca3af; font-size: 0.8rem; }}
 </style>
 </head>
 <body>
-<h1>EngageIU — Weekly Leaderboard</h1>
-<h2>Week of {week_label} &nbsp;|&nbsp; {campus_label}</h2>
+<h1>EngageIU Weekly Leaderboard<span class="live-pill"><span class="dot"></span> LIVE</span></h1>
+<p class="meta">Week of {week_label} &nbsp;&bull;&nbsp; {campus_label}</p>
 <table>
   <thead><tr>
     <th>Rank</th><th>Name</th><th>IU Username</th>
@@ -381,6 +394,7 @@ async def get_leaderboard(
   </tr></thead>
   <tbody>{rows_html}</tbody>
 </table>
+<p class="refresh-note">Auto-refreshes every 2 seconds</p>
 </body></html>"""
         return HTMLResponse(content=html)
 
