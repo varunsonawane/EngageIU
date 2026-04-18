@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from models import Student, Event, Attendance, EventCode
 
-# Varied point values cycling across events — same logic as update_points.py
+# Points per event follow this cycle (index % 10): 50,10,25,30,15,40,20,35,5,45
 POINTS_CYCLE = [50, 10, 25, 30, 15, 40, 20, 35, 5, 45]
 
 
@@ -22,8 +22,9 @@ def seed_data(db: Session):
     )
 
     # ── Events (realistic IU events across all campuses) ─────────────────────
+    # points= values come from POINTS_CYCLE[index % 10]
     events = [
-        Event(
+        Event(                                           # index 0 → 50 pts
             title="Luddy School AI & Innovation Summit",
             category="Tech",
             description=(
@@ -34,10 +35,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://luddy.indiana.edu/events",
             check_in_code="LUDDY2025",
-            points=10,
+            points=50,
             event_date=week_start + timedelta(days=1, hours=9),
         ),
-        Event(
+        Event(                                           # index 1 → 10 pts
             title="IU Kelley Business Career Expo",
             category="Career",
             description=(
@@ -50,7 +51,7 @@ def seed_data(db: Session):
             points=10,
             event_date=week_start + timedelta(days=1, hours=13),
         ),
-        Event(
+        Event(                                           # index 2 → 25 pts
             title="IUPUI Research Showcase",
             category="Academic",
             description=(
@@ -61,10 +62,10 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://research.iu.edu/events",
             check_in_code="IUPUIRC5",
-            points=10,
+            points=25,
             event_date=week_start + timedelta(days=2, hours=10),
         ),
-        Event(
+        Event(                                           # index 3 → 30 pts
             title="Wellness & Mental Health Workshop",
             category="Health",
             description=(
@@ -74,10 +75,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://healthcenter.iu.edu",
             check_in_code="WELLNS25",
-            points=10,
+            points=30,
             event_date=week_start + timedelta(days=2, hours=14),
         ),
-        Event(
+        Event(                                           # index 4 → 15 pts
             title="IU East STEM Networking Night",
             category="Career",
             description=(
@@ -87,10 +88,10 @@ def seed_data(db: Session):
             campus="IU East",
             event_url="https://iue.iu.edu/events",
             check_in_code="IUEAST25",
-            points=10,
+            points=15,
             event_date=week_start + timedelta(days=2, hours=17),
         ),
-        Event(
+        Event(                                           # index 5 → 40 pts
             title="Luddy Hacks Hackathon Kickoff",
             category="Tech",
             description=(
@@ -100,10 +101,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://iuhacks.io",
             check_in_code="LHACKS25",
-            points=10,
+            points=40,
             event_date=week_start + timedelta(days=3, hours=9),
         ),
-        Event(
+        Event(                                           # index 6 → 20 pts
             title="IU South Bend Arts & Culture Fair",
             category="Cultural",
             description=(
@@ -113,10 +114,10 @@ def seed_data(db: Session):
             campus="IU South Bend",
             event_url="https://iusb.edu/events",
             check_in_code="SBARTS5",
-            points=10,
+            points=20,
             event_date=week_start + timedelta(days=3, hours=12),
         ),
-        Event(
+        Event(                                           # index 7 → 35 pts
             title="IU Kokomo Entrepreneurship Pitch Night",
             category="Career",
             description=(
@@ -126,10 +127,10 @@ def seed_data(db: Session):
             campus="IU Kokomo",
             event_url="https://iuk.iu.edu/events",
             check_in_code="KOKOPIT5",
-            points=10,
+            points=35,
             event_date=week_start + timedelta(days=3, hours=18),
         ),
-        Event(
+        Event(                                           # index 8 → 5 pts
             title="IU Northwest Community Leadership Forum",
             category="Social",
             description=(
@@ -139,10 +140,10 @@ def seed_data(db: Session):
             campus="IU Northwest",
             event_url="https://iun.iu.edu/events",
             check_in_code="NWLEAD5",
-            points=10,
+            points=5,
             event_date=week_start + timedelta(days=4, hours=11),
         ),
-        Event(
+        Event(                                           # index 9 → 45 pts
             title="IU Southeast Tech & Coding Bootcamp",
             category="Tech",
             description=(
@@ -152,10 +153,10 @@ def seed_data(db: Session):
             campus="IU Southeast",
             event_url="https://ius.iu.edu/events",
             check_in_code="SECODE5",
-            points=10,
+            points=45,
             event_date=week_start + timedelta(days=4, hours=9),
         ),
-        Event(
+        Event(                                           # index 10 → 50 pts
             title="IU Columbus Diversity & Inclusion Summit",
             category="Cultural",
             description=(
@@ -165,10 +166,10 @@ def seed_data(db: Session):
             campus="IU Columbus",
             event_url="https://iuc.iu.edu/events",
             check_in_code="IUCDIV5",
-            points=10,
+            points=50,
             event_date=week_start + timedelta(days=4, hours=13),
         ),
-        Event(
+        Event(                                           # index 11 → 10 pts
             title="IU Fort Wayne Engineering Design Expo",
             category="Academic",
             description=(
@@ -181,7 +182,7 @@ def seed_data(db: Session):
             points=10,
             event_date=week_start + timedelta(days=5, hours=10),
         ),
-        Event(
+        Event(                                           # index 12 → 25 pts
             title="Maurer School of Law Mock Trial",
             category="Academic",
             description=(
@@ -191,10 +192,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://law.indiana.edu/events",
             check_in_code="LAWMOCK5",
-            points=10,
+            points=25,
             event_date=week_start + timedelta(days=5, hours=14),
         ),
-        Event(
+        Event(                                           # index 13 → 30 pts
             title="IU Indianapolis Health Sciences Symposium",
             category="Health",
             description=(
@@ -204,10 +205,10 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://medicine.iu.edu/events",
             check_in_code="HEALTH25",
-            points=10,
+            points=30,
             event_date=week_start + timedelta(days=5, hours=9),
         ),
-        Event(
+        Event(                                           # index 14 → 15 pts
             title="IU Sustainability & Green Campus Expo",
             description=(
                 "Learn about IU's carbon neutrality goals, sustainability initiatives, "
@@ -217,11 +218,11 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://sustain.indiana.edu",
             check_in_code="GREEN25",
-            points=10,
+            points=15,
             event_date=week_start + timedelta(days=6, hours=11),
         ),
         # ── 32 additional events spread over next 30 days ────────────────────
-        Event(
+        Event(                                           # index 15 → 40 pts
             title="Little 500 Kickoff Party",
             category="Sports",
             description=(
@@ -232,10 +233,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://iusf.indiana.edu/l500/index.html",
             check_in_code="LITTLE500",
-            points=10,
+            points=40,
             event_date=now + timedelta(days=1, hours=16),
         ),
-        Event(
+        Event(                                           # index 16 → 20 pts
             title="IU Career Fair: STEM Edition",
             category="Career",
             description=(
@@ -246,10 +247,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://careers.indiana.edu/channels/career-fairs/index.html",
             check_in_code="STEMFAIR",
-            points=10,
+            points=20,
             event_date=now + timedelta(days=2, hours=10),
         ),
-        Event(
+        Event(                                           # index 17 → 35 pts
             title="Lotus World Music & Arts Festival",
             category="Cultural",
             description=(
@@ -260,10 +261,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://lotusfest.org",
             check_in_code="LOTUS25",
-            points=10,
+            points=35,
             event_date=now + timedelta(days=3, hours=14),
         ),
-        Event(
+        Event(                                           # index 18 → 5 pts
             title="Undergraduate Research Symposium",
             category="Academic",
             description=(
@@ -274,10 +275,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://research.indiana.edu/undergraduate/index.html",
             check_in_code="UGRSYMP5",
-            points=10,
+            points=5,
             event_date=now + timedelta(days=4, hours=9),
         ),
-        Event(
+        Event(                                           # index 19 → 45 pts
             title="IU Basketball Watch Party",
             category="Sports",
             description=(
@@ -288,10 +289,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://iuhoosiers.com/sports/mens-basketball",
             check_in_code="BBALL25",
-            points=10,
+            points=45,
             event_date=now + timedelta(days=4, hours=19),
         ),
-        Event(
+        Event(                                           # index 20 → 50 pts
             title="Study Abroad Information Fair",
             category="Academic",
             description=(
@@ -302,10 +303,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://overseas.iu.edu/index.html",
             check_in_code="STUDYAB5",
-            points=10,
+            points=50,
             event_date=now + timedelta(days=5, hours=11),
         ),
-        Event(
+        Event(                                           # index 21 → 10 pts
             title="Kelley Consulting Case Competition",
             category="Career",
             description=(
@@ -319,7 +320,7 @@ def seed_data(db: Session):
             points=10,
             event_date=now + timedelta(days=6, hours=9),
         ),
-        Event(
+        Event(                                           # index 22 → 25 pts
             title="Data Science & ML Workshop",
             category="Tech",
             description=(
@@ -330,10 +331,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://luddy.indiana.edu/news-events/events/index.html",
             check_in_code="DATASCI5",
-            points=10,
+            points=25,
             event_date=now + timedelta(days=7, hours=13),
         ),
-        Event(
+        Event(                                           # index 23 → 30 pts
             title="Latino Heritage Month Celebration",
             category="Cultural",
             description=(
@@ -344,10 +345,10 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://diversity.iupui.edu/centers/latino/events.html",
             check_in_code="LATINO25",
-            points=10,
+            points=30,
             event_date=now + timedelta(days=8, hours=17),
         ),
-        Event(
+        Event(                                           # index 24 → 15 pts
             title="IU Day of Service: Community Volunteer",
             category="Social",
             description=(
@@ -358,10 +359,10 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://servicelearning.iupui.edu",
             check_in_code="DAYSERV5",
-            points=10,
+            points=15,
             event_date=now + timedelta(days=9, hours=8),
         ),
-        Event(
+        Event(                                           # index 25 → 40 pts
             title="IU School of Medicine Open House",
             category="Academic",
             description=(
@@ -372,10 +373,10 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://medicine.iu.edu/admissions/events",
             check_in_code="MEDOPEN5",
-            points=10,
+            points=40,
             event_date=now + timedelta(days=10, hours=10),
         ),
-        Event(
+        Event(                                           # index 26 → 20 pts
             title="Cybersecurity Awareness Workshop",
             category="Tech",
             description=(
@@ -386,10 +387,10 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://soic.iupui.edu/events",
             check_in_code="CYBER25",
-            points=10,
+            points=20,
             event_date=now + timedelta(days=11, hours=14),
         ),
-        Event(
+        Event(                                           # index 27 → 35 pts
             title="IU East Community Art Exhibition",
             category="Cultural",
             description=(
@@ -400,10 +401,10 @@ def seed_data(db: Session):
             campus="IU East",
             event_url="https://east.indiana.edu/arts-humanities/index.html",
             check_in_code="IUEART5",
-            points=10,
+            points=35,
             event_date=now + timedelta(days=12, hours=12),
         ),
-        Event(
+        Event(                                           # index 28 → 5 pts
             title="Financial Wellness Seminar",
             category="Health",
             description=(
@@ -414,10 +415,10 @@ def seed_data(db: Session):
             campus="IU East",
             event_url="https://east.indiana.edu/student-services/financial-aid/index.html",
             check_in_code="FINWEL5",
-            points=10,
+            points=5,
             event_date=now + timedelta(days=13, hours=15),
         ),
-        Event(
+        Event(                                           # index 29 → 45 pts
             title="IU Kokomo Science Fair",
             category="Academic",
             description=(
@@ -428,10 +429,10 @@ def seed_data(db: Session):
             campus="IU Kokomo",
             event_url="https://iuk.iu.edu/academics/stem/index.html",
             check_in_code="KOKSCI5",
-            points=10,
+            points=45,
             event_date=now + timedelta(days=14, hours=10),
         ),
-        Event(
+        Event(                                           # index 30 → 50 pts
             title="Northwest Student Leadership Summit",
             category="Social",
             description=(
@@ -442,10 +443,10 @@ def seed_data(db: Session):
             campus="IU Northwest",
             event_url="https://www.iun.edu/student-affairs/leadership.htm",
             check_in_code="NWSLS25",
-            points=10,
+            points=50,
             event_date=now + timedelta(days=15, hours=9),
         ),
-        Event(
+        Event(                                           # index 31 → 10 pts
             title="South Bend Civic Engagement Forum",
             category="Social",
             description=(
@@ -459,7 +460,7 @@ def seed_data(db: Session):
             points=10,
             event_date=now + timedelta(days=16, hours=13),
         ),
-        Event(
+        Event(                                           # index 32 → 25 pts
             title="Southeast Business Pitch Competition",
             category="Career",
             description=(
@@ -470,10 +471,10 @@ def seed_data(db: Session):
             campus="IU Southeast",
             event_url="https://www.ius.edu/business/student-resources.html",
             check_in_code="SEBPC25",
-            points=10,
+            points=25,
             event_date=now + timedelta(days=17, hours=14),
         ),
-        Event(
+        Event(                                           # index 33 → 30 pts
             title="Columbus Nursing Clinical Showcase",
             category="Academic",
             description=(
@@ -484,10 +485,10 @@ def seed_data(db: Session):
             campus="IU Columbus",
             event_url="https://columbus.iu.edu/academics/nursing.html",
             check_in_code="COLNRS5",
-            points=10,
+            points=30,
             event_date=now + timedelta(days=18, hours=10),
         ),
-        Event(
+        Event(                                           # index 34 → 15 pts
             title="Fort Wayne Engineering Career Night",
             category="Career",
             description=(
@@ -498,10 +499,10 @@ def seed_data(db: Session):
             campus="IU Fort Wayne",
             event_url="https://www.iufw.edu/engineering-technology/index.html",
             check_in_code="FWECN25",
-            points=10,
+            points=15,
             event_date=now + timedelta(days=19, hours=17),
         ),
-        Event(
+        Event(                                           # index 35 → 40 pts
             title="IU Mental Health Awareness Walk",
             category="Health",
             description=(
@@ -512,10 +513,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://healthcenter.indiana.edu/counseling/index.html",
             check_in_code="MHWALK5",
-            points=10,
+            points=40,
             event_date=now + timedelta(days=20, hours=8),
         ),
-        Event(
+        Event(                                           # index 36 → 20 pts
             title="Open Source Contribution Day",
             category="Tech",
             description=(
@@ -526,10 +527,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://luddy.indiana.edu/research/centers/index.html",
             check_in_code="OPENSR5",
-            points=10,
+            points=20,
             event_date=now + timedelta(days=21, hours=10),
         ),
-        Event(
+        Event(                                           # index 37 → 35 pts
             title="IU vs Purdue Rivalry Tailgate",
             category="Sports",
             description=(
@@ -540,10 +541,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://iuhoosiers.com/sports/football",
             check_in_code="RIVTAL5",
-            points=10,
+            points=35,
             event_date=now + timedelta(days=22, hours=12),
         ),
-        Event(
+        Event(                                           # index 38 → 5 pts
             title="AI Ethics Panel Discussion",
             category="Tech",
             description=(
@@ -554,10 +555,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://luddy.indiana.edu/news-events/events/index.html",
             check_in_code="AIETHIC5",
-            points=10,
+            points=5,
             event_date=now + timedelta(days=23, hours=14),
         ),
-        Event(
+        Event(                                           # index 39 → 45 pts
             title="Asian Pacific Heritage Showcase",
             category="Cultural",
             description=(
@@ -568,10 +569,10 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://diversity.iupui.edu/centers/asian/events.html",
             check_in_code="APHA2025",
-            points=10,
+            points=45,
             event_date=now + timedelta(days=24, hours=16),
         ),
-        Event(
+        Event(                                           # index 40 → 50 pts
             title="Free Flu Shot & Health Screening",
             category="Health",
             description=(
@@ -582,10 +583,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://healthcenter.indiana.edu/index.html",
             check_in_code="FLUSHOOT",
-            points=10,
+            points=50,
             event_date=now + timedelta(days=25, hours=9),
         ),
-        Event(
+        Event(                                           # index 41 → 10 pts
             title="Greek Life Philanthropy Fair",
             category="Social",
             description=(
@@ -599,7 +600,7 @@ def seed_data(db: Session):
             points=10,
             event_date=now + timedelta(days=26, hours=11),
         ),
-        Event(
+        Event(                                           # index 42 → 25 pts
             title="Resume & LinkedIn Workshop",
             category="Career",
             description=(
@@ -610,10 +611,10 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://career.iupui.edu/channels/events/index.html",
             check_in_code="RESLINK5",
-            points=10,
+            points=25,
             event_date=now + timedelta(days=27, hours=13),
         ),
-        Event(
+        Event(                                           # index 43 → 30 pts
             title="IU Sustainability Earth Week",
             category="Social",
             description=(
@@ -624,10 +625,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://sustain.indiana.edu/programs/earth-week.html",
             check_in_code="EARTHWK5",
-            points=10,
+            points=30,
             event_date=now + timedelta(days=28, hours=10),
         ),
-        Event(
+        Event(                                           # index 44 → 15 pts
             title="International Student Welcome Mixer",
             category="Cultural",
             description=(
@@ -638,10 +639,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://ois.iu.edu/living-in-bloomington/events.html",
             check_in_code="INTLMIX5",
-            points=10,
+            points=15,
             event_date=now + timedelta(days=29, hours=18),
         ),
-        Event(
+        Event(                                           # index 45 → 40 pts
             title="Midnight Run Charity 5K",
             category="Sports",
             description=(
@@ -652,10 +653,10 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://recsports.indiana.edu/events/index.html",
             check_in_code="MIDRUN25",
-            points=10,
+            points=40,
             event_date=now + timedelta(days=30, hours=0),
         ),
-        Event(
+        Event(                                           # index 46 → 20 pts
             title="App Development Bootcamp",
             category="Tech",
             description=(
@@ -666,14 +667,10 @@ def seed_data(db: Session):
             campus="IU Southeast",
             event_url="https://www.ius.edu/informatics/index.html",
             check_in_code="APPBOOT5",
-            points=10,
+            points=20,
             event_date=now + timedelta(days=30, hours=9),
         ),
     ]
-    # Apply varied point values (same cycle as update_points.py)
-    for i, ev in enumerate(events):
-        ev.points = POINTS_CYCLE[i % len(POINTS_CYCLE)]
-
     db.add_all(events)
     db.flush()
 
@@ -748,55 +745,55 @@ def seed_data(db: Session):
     # ── Attendance records (spread across the week, realistic point totals) ───
     # Format: (student_index, event_index, day_offset, hour_offset)
     checkins = [
-        # Aiden — top performer: 5 events = 25+30+20+15+10 = 100 pts
+        # Aiden — top performer: 5 events
         (0, 0, 1, 9),   (0, 5, 3, 9),   (0, 1, 1, 13),  (0, 2, 2, 10),  (0, 3, 2, 14),
-        # Sofia — 4 events = 25+30+20+15 = 90 pts
+        # Sofia — 4 events
         (1, 0, 1, 9),   (1, 5, 3, 9),   (1, 1, 1, 13),  (1, 4, 2, 17),
-        # Marcus — 4 events = 25+30+15+10 = 80 pts
+        # Marcus — 4 events
         (2, 0, 1, 9),   (2, 5, 3, 10),  (2, 6, 3, 12),  (2, 14, 6, 11),
-        # Carlos — 3 events = 15+20+20 = 55 pts
+        # Carlos — 3 events
         (8, 2, 2, 10),  (8, 13, 5, 9),  (8, 7, 3, 18),
-        # Priya — 3 events = 25+20+10 = 55 pts
+        # Priya — 3 events
         (3, 0, 1, 9),   (3, 1, 1, 14),  (3, 3, 2, 14),
-        # Fatima — 3 events = 15+20+15 = 50 pts
+        # Fatima — 3 events
         (9, 2, 2, 10),  (9, 13, 5, 9),  (9, 8, 4, 11),
-        # Ethan — 3 events = 30+10+10 = 50 pts
+        # Ethan — 3 events
         (4, 5, 3, 9),   (4, 3, 2, 15),  (4, 14, 6, 11),
-        # Olivia — 3 events = 25+15+10 = 50 pts
+        # Olivia — 3 events
         (5, 0, 1, 10),  (5, 12, 5, 14), (5, 14, 6, 12),
-        # Layla — 2 events = 15+20 = 35 pts
+        # Layla — 2 events
         (17, 8, 4, 11), (17, 11, 5, 10),
-        # Tyler — 2 events = 15+20 = 35 pts
+        # Tyler — 2 events
         (10, 2, 2, 10), (10, 13, 5, 10),
-        # James — 2 events = 30+10 = 40 pts
+        # James — 2 events
         (6, 5, 3, 9),   (6, 6, 3, 12),
-        # Hannah — 2 events = 15+20 = 35 pts
+        # Hannah — 2 events
         (13, 4, 2, 17), (13, 9, 4, 9),
-        # Diego — 2 events = 15+10 = 25 pts
+        # Diego — 2 events
         (18, 8, 4, 11), (18, 6, 3, 13),
-        # Amara — 2 events = 20+15 = 35 pts
+        # Amara — 2 events
         (11, 13, 5, 9), (11, 2, 2, 11),
-        # Emma — 2 events = 25+15 = 40 pts
+        # Emma — 2 events
         (7, 0, 1, 10),  (7, 12, 5, 14),
-        # Noah — 2 events = 15+20 = 35 pts
+        # Noah — 2 events
         (14, 4, 2, 17), (14, 9, 4, 9),
-        # Liam — 2 events = 20+15 = 35 pts
+        # Liam — 2 events
         (12, 13, 5, 9), (12, 8, 4, 12),
-        # Zoe — 1 event = 20 pts
+        # Zoe — 1 event
         (15, 7, 3, 18),
-        # Ben — 1 event = 20 pts
+        # Ben — 1 event
         (16, 7, 3, 19),
-        # Chloe — 1 event = 10 pts
+        # Chloe — 1 event
         (19, 6, 3, 12),
-        # Lucas — 1 event = 10 pts
+        # Lucas — 1 event
         (20, 6, 3, 13),
-        # Mia — 1 event = 20 pts
+        # Mia — 1 event
         (21, 9, 4, 9),
-        # Elijah — 1 event = 20 pts
+        # Elijah — 1 event
         (22, 9, 4, 10),
-        # Ava — 1 event = 15 pts
+        # Ava — 1 event
         (23, 10, 4, 13),
-        # Jack — 1 event = 20 pts
+        # Jack — 1 event
         (24, 11, 5, 10),
     ]
 
@@ -840,4 +837,3 @@ if __name__ == "__main__":
         seed_data(db)
     finally:
         db.close()
-
