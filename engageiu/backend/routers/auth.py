@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 SECRET_KEY = os.getenv("SECRET_KEY", "engageiu_secret_key_change_in_prod")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 480  # 8 hours — covers the hackathon window
+ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "engageiu2025")
@@ -56,7 +56,7 @@ def verify_admin_token(token: str = Depends(oauth2_scheme)) -> str:
 
 
 def try_get_admin(token: Optional[str] = Depends(OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False))) -> Optional[str]:
-    """Returns admin username if token is valid, None otherwise (no error)."""
+
     if not token:
         return None
     try:
@@ -71,7 +71,7 @@ def try_get_admin(token: Optional[str] = Depends(OAuth2PasswordBearer(tokenUrl="
 
 @router.post("/login", response_model=TokenResponse, summary="Admin login")
 async def login(body: LoginBody):
-    """Authenticate as admin and receive a JWT bearer token."""
+
     if body.username != ADMIN_USERNAME or body.password != ADMIN_PASSWORD:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

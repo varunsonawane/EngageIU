@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ .
 
 # Copy frontend for StaticFiles serving (main.py looks at ../frontend relative to /app)
-COPY frontend/ /frontend/
+COPY frontend/ ./frontend/
 
 # Data directory for SQLite persistence
 RUN mkdir -p /app/data

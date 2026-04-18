@@ -8,30 +8,30 @@
 </head>
 <body>
 
-<!-- ── Navigation ──────────────────────────────────────────────────────────── -->
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="nav-brand">Engage<span>IU</span></a>
     <div class="nav-links">
       <a href="/">Home</a>
       <a href="/static/events.html" class="active">Events</a>
-      <a href="/static/analytics.html">Analytics</a>
+      <a href="/static/analytics.html">Hoosiers</a>
       <a href="/static/admin.html" class="admin-nav-link hidden">Admin</a>
     </div>
     <div class="nav-actions">
       <button class="btn btn-secondary btn-sm hidden" id="btn-admin-logout">Logout</button>
       <button class="btn btn-secondary btn-sm" id="btn-admin-login">Admin</button>
     </div>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
-<!-- ── Page header ──────────────────────────────────────────────────────────── -->
 <section class="hero" style="padding:2rem 1.5rem">
   <h1 style="font-size:1.8rem">IU Events</h1>
   <p style="margin-bottom:0">Attend events, collect codes, earn points on the leaderboard.</p>
 </section>
 
-<!-- ── Events listing ───────────────────────────────────────────────────────── -->
 <main class="container section">
   <div class="section-header">
     <div>
@@ -65,7 +65,7 @@
   </div>
 </main>
 
-<!-- ── Admin: Add Event FAB & Modal ─────────────────────────────────────────── -->
+
 <button class="fab" id="fab-add-event" title="Add Event">+</button>
 
 <div class="modal-overlay" id="add-event-modal">
@@ -110,7 +110,7 @@
   </div>
 </div>
 
-<!-- ── Admin Login Modal (shared) ──────────────────────────────────────────── -->
+
 <div class="modal-overlay" id="admin-login-modal">
   <div class="modal">
     <div class="modal-header">
@@ -134,9 +134,9 @@
   </div>
 </div>
 
-<!-- ── Footer ───────────────────────────────────────────────────────────────── -->
+
 <footer class="footer">
-  EngageIU &mdash; Built for Luddy Hacks &bull; Indiana University &bull;
+  EngageIU &bull; Built for Luddy Hacks &bull; Indiana University &bull;
   <a href="/docs">API Docs</a>
 </footer>
 

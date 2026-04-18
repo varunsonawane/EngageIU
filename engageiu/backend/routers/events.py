@@ -61,7 +61,6 @@ def _upsert_event_code(db: Session, event: Event, set_by: str = "admin") -> None
         ))
 
 
-# ── Schemas ───────────────────────────────────────────────────────────────────
 
 class EventCreate(BaseModel):
     title: str
@@ -95,7 +94,6 @@ class BonusPointsBody(BaseModel):
     bonus_points: int
 
 
-# ── GET /events ───────────────────────────────────────────────────────────────
 
 @router.get("/events", summary="List events")
 async def list_events(
@@ -134,7 +132,6 @@ async def list_events(
     return result
 
 
-# ── POST /events ──────────────────────────────────────────────────────────────
 
 @router.post("/events", status_code=201, summary="Create event (admin)")
 async def create_event(
@@ -182,7 +179,6 @@ async def create_event(
     }
 
 
-# ── PATCH /events/{event_id} ──────────────────────────────────────────────────
 
 @router.patch("/events/{event_id}", summary="Update event (admin)")
 async def update_event(
@@ -235,7 +231,6 @@ async def update_event(
     }
 
 
-# ── DELETE /events/{event_id} ─────────────────────────────────────────────────
 
 @router.delete("/events/{event_id}", summary="Delete event (admin)")
 async def delete_event(
@@ -251,7 +246,6 @@ async def delete_event(
     return {"message": "Event {} deleted".format(event_id)}
 
 
-# ── GET /events/{event_id}/code ───────────────────────────────────────────────
 
 @router.get("/events/{event_id}/code", summary="Get check-in code for event (admin)")
 async def get_event_code(
@@ -265,7 +259,6 @@ async def get_event_code(
     return {"event_id": event_id, "check_in_code": event.check_in_code}
 
 
-# ── POST /events/{event_id}/regenerate-code ───────────────────────────────────
 
 @router.post("/events/{event_id}/regenerate-code", summary="Regenerate check-in code (admin)")
 async def regenerate_event_code(
@@ -292,7 +285,6 @@ async def regenerate_event_code(
     }
 
 
-# ── GET /admin/students ───────────────────────────────────────────────────────
 
 @router.get("/admin/students", summary="List all students (admin)")
 async def admin_list_students(
@@ -355,7 +347,6 @@ async def admin_list_students(
     }
 
 
-# ── DELETE /admin/students/{student_id} ──────────────────────────────────────
 
 @router.delete("/admin/students/{student_id}", summary="Delete student (admin)")
 async def admin_delete_student(
@@ -371,7 +362,6 @@ async def admin_delete_student(
     return {"message": "Student {} deleted".format(student_id)}
 
 
-# ── PATCH /admin/students/{student_id} ───────────────────────────────────────
 
 @router.patch("/admin/students/{student_id}", summary="Update student bonus points (admin)")
 async def admin_update_student(
@@ -388,7 +378,6 @@ async def admin_update_student(
     return {"id": student.id, "bonus_points": student.bonus_points}
 
 
-# ── GET /admin/event-codes ────────────────────────────────────────────────────
 
 @router.get("/admin/event-codes", summary="List all event codes (admin)")
 async def admin_list_event_codes(
@@ -408,7 +397,6 @@ async def admin_list_event_codes(
     ]
 
 
-# ── GET /admin/stats ──────────────────────────────────────────────────────────
 
 @router.get("/admin/stats", summary="Public analytics stats (extended)")
 async def admin_stats(
@@ -546,7 +534,6 @@ async def admin_stats(
     }
 
 
-# ── POST /checkin ─────────────────────────────────────────────────────────────
 
 @router.post("/checkin", summary="Student self check-in")
 async def student_checkin(
@@ -632,7 +619,6 @@ async def student_checkin(
     }
 
 
-# ── GET /students/search ──────────────────────────────────────────────────────
 
 @router.get("/students/search", summary="Search students by name or username")
 async def search_students(

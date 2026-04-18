@@ -10,14 +10,13 @@
 
 <body>
 
-  <!-- ── Navigation ──────────────────────────────────────────────────────────── -->
   <nav class="nav">
     <div class="nav-inner">
       <a href="/" class="nav-brand">Engage<span>IU</span></a>
       <div class="nav-links">
         <a href="/" class="active">Home</a>
         <a href="/static/events.html">Events</a>
-        <a href="/static/analytics.html">Analytics</a>
+        <a href="/static/analytics.html">Hoosiers</a>
         <a href="/static/admin.html" class="admin-nav-link hidden">Admin</a>
       </div>
       <div class="nav-actions">
@@ -25,10 +24,12 @@
         <button class="btn btn-secondary btn-sm hidden" id="btn-admin-logout">Logout</button>
         <button class="btn btn-secondary btn-sm" id="btn-admin-login">Admin</button>
       </div>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
 
-  <!-- ── Hero ────────────────────────────────────────────────────────────────── -->
   <section class="hero">
     <h1>Attend events. Earn points. <span>Top the board.</span></h1>
     <p>Enter your event code after attending any IU event and climb the weekly leaderboard. Every check-in counts.</p>
@@ -39,7 +40,6 @@
     </div>
   </section>
 
-  <!-- ── Leaderboard ──────────────────────────────────────────────────────────── -->
   <main class="container section">
     <div class="section-header">
       <div>
@@ -47,7 +47,11 @@
         <p class="section-subtitle" id="week-label">Loading...</p>
       </div>
       <div class="refresh-label">
-        <span class="refresh-dot"></span> Live updates
+        <span class="live-badge" id="live-badge">
+          <span class="live-dot"></span> LIVE
+        </span>
+        <a href="/leaderboard/export" download class="btn btn-outline btn-sm" style="font-size:0.78rem;padding:0.2rem 0.65rem">Export CSV</a>
+        <a href="/leaderboard?format=html" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.78rem;padding:0.2rem 0.65rem">HTML View</a>
       </div>
     </div>
 
@@ -73,9 +77,9 @@
           <tr>
             <th style="width:60px">Rank</th>
             <th>Name</th>
-            <th>IU Username</th>
-            <th>Campus</th>
-            <th>Events</th>
+            <th class="col-username">IU Username</th>
+            <th class="col-campus">Campus</th>
+            <th class="col-events">Events</th>
             <th>Points</th>
           </tr>
         </thead>
@@ -88,7 +92,6 @@
     </div>
   </main>
 
-  <!-- ── Check-In Modal ───────────────────────────────────────────────────────── -->
   <div class="modal-overlay" id="checkin-modal">
     <div class="modal">
       <div class="modal-header">
@@ -122,7 +125,6 @@
     </div>
   </div>
 
-  <!-- ── Admin Login Modal (shared) ──────────────────────────────────────────── -->
   <div class="modal-overlay" id="admin-login-modal">
     <div class="modal">
       <div class="modal-header">
@@ -146,17 +148,13 @@
     </div>
   </div>
 
-  <!-- ── Footer ───────────────────────────────────────────────────────────────── -->
   <footer class="footer">
-    EngageIU &mdash; Built for Luddy Hacks &bull; Indiana University &bull;
+    EngageIU &bull; Built for Luddy Hacks &bull; Indiana University &bull;
     <a href="/docs">API Docs</a>
   </footer>
 
   <script src="/static/assets/app.js"></script>
   <script>
-    // ── Leaderboard page logic ────────────────────────────────────────────────────
-    // NOTE: avoid "weekLabel" as a variable name — app.js exports formatWeekRange instead
-
     let lbData = [];
     let searchMode = false;
     let searchTimer = null;
@@ -167,34 +165,39 @@
     const searchInput = document.getElementById('search-input');
     const campusFilter = document.getElementById('campus-filter');
 
-    // Populate campus dropdown in check-in modal
     document.getElementById('ci-campus').innerHTML = campusOptions(false);
 
-    // ── Helpers ───────────────────────────────────────────────────────────────────
-
     function escHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // ── Render leaderboard rows ───────────────────────────────────────────────────
+    function trendHtml(rc) {
+      if (rc === null || rc === undefined) return '';
+      if (rc > 0) return '<div class="rank-trend up">+' + rc + '</div>';
+      if (rc < 0) return '<div class="rank-trend down">' + rc + '</div>';
+      return '';
+    }
+
+    function risingTag(badges) {
+      if (badges && badges.includes('rising')) {
+        return ' <span class="entry-tag-rising">rising</span>';
+      }
+      return '';
+    }
 
     function renderLeaderboard(rows) {
       if (!rows || rows.length === 0) {
-        lbBodyEl.innerHTML = `<tr><td colspan="6" class="text-center" style="padding:2rem;color:#999">
-      No entries yet this week. Be the first to check in!
-    </td></tr>`;
+        lbBodyEl.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:2rem;color:#999">No entries yet this week.</td></tr>';
         return;
       }
-      lbBodyEl.innerHTML = rows.map(r => {
-        const rankClass = r.rank <= 3 ? 'rank-' + r.rank : '';
-        return '<tr class="' + rankClass + '">' +
-          '<td>' + rankBadge(r.rank) + '</td>' +
-          '<td>' + escHtml(r.name) + '</td>' +
-          '<td style="color:#666;font-size:0.9rem">' + escHtml(r.iu_username) + '</td>' +
-          '<td><span class="campus-badge">' + escHtml(r.campus) + '</span></td>' +
-          '<td style="text-align:center">' + r.events_attended + '</td>' +
+      lbBodyEl.innerHTML = rows.map(function(r) {
+        var nameSub = '<div class="name-sub">@' + escHtml(r.iu_username) + ' &middot; ' + escHtml(r.campus) + '</div>';
+        return '<tr class="' + (r.rank <= 3 ? 'rank-' + r.rank : '') + '">' +
+          '<td class="rank-cell">' + rankBadge(r.rank) + trendHtml(r.rank_change) + '</td>' +
+          '<td>' + escHtml(r.name) + risingTag(r.badges) + nameSub + '</td>' +
+          '<td class="col-username" style="color:#666;font-size:0.9rem">' + escHtml(r.iu_username) + '</td>' +
+          '<td class="col-campus"><span class="campus-badge">' + escHtml(r.campus) + '</span></td>' +
+          '<td class="col-events" style="text-align:center">' + r.events_attended + '</td>' +
           '<td><span class="points-badge">' + r.total_points + '</span></td>' +
           '</tr>';
       }).join('');
@@ -205,24 +208,21 @@
         lbBodyEl.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:2rem;color:#999">No students found.</td></tr>';
         return;
       }
-      lbBodyEl.innerHTML = students.map(function (s, i) {
-        return '<tr>' +
-          '<td><span class="rank-num">' + (i + 1) + '</span></td>' +
-          '<td>' + escHtml(s.name) + '</td>' +
-          '<td style="color:#666;font-size:0.9rem">' + escHtml(s.iu_username) + '</td>' +
-          '<td><span class="campus-badge">' + escHtml(s.campus) + '</span></td>' +
-          '<td style="text-align:center">—</td>' +
-          '<td><span class="points-badge">' + s.weekly_points + '</span></td>' +
-          '</tr>';
-      }).join('');
+      lbBodyEl.innerHTML = students.map((s, i) =>
+        '<tr>' +
+        '<td><span class="rank-num">' + (i + 1) + '</span></td>' +
+        '<td>' + escHtml(s.name) + '</td>' +
+        '<td style="color:#666;font-size:0.9rem">' + escHtml(s.iu_username) + '</td>' +
+        '<td><span class="campus-badge">' + escHtml(s.campus) + '</span></td>' +
+        '<td style="text-align:center">-</td>' +
+        '<td><span class="points-badge">' + s.weekly_points + '</span></td>' +
+        '</tr>'
+      ).join('');
     }
-
-    // ── Initial load via fetch (also used for campus filter changes) ───────────────
 
     async function loadLeaderboard() {
       const campus = campusFilter.value;
-      let url = '/leaderboard';
-      if (campus) url += '?campus=' + encodeURIComponent(campus);
+      let url = '/leaderboard' + (campus ? '?campus=' + encodeURIComponent(campus) : '');
       try {
         const data = await api('GET', url);
         lbData = data.leaderboard || [];
@@ -233,102 +233,73 @@
       }
     }
 
-    // ── Live updates via Server-Sent Events ───────────────────────────────────────
-
     function connectSSE() {
       if (sseSource) sseSource.close();
-
       const campus = campusFilter.value;
-      let url = BASE_URL + '/leaderboard/stream';
-      if (campus) url += '?campus=' + encodeURIComponent(campus);
-
+      const url = BASE_URL + '/leaderboard/stream' + (campus ? '?campus=' + encodeURIComponent(campus) : '');
       sseSource = new EventSource(url);
-
-      sseSource.onmessage = function (e) {
+      sseSource.onmessage = function(e) {
         try {
           const payload = JSON.parse(e.data);
           lbData = payload.leaderboard || [];
-          if (payload.week_start) {
-            weekLabelEl.textContent = 'Week of ' + formatWeekRange(payload.week_start, payload.week_end);
-          }
+          if (payload.week_start) weekLabelEl.textContent = 'Week of ' + formatWeekRange(payload.week_start, payload.week_end);
           if (!searchMode) renderLeaderboard(lbData);
-          // Flash the live dot green briefly
-          document.querySelector('.refresh-dot').style.background = '#4caf50';
-        } catch (_) { }
+          document.getElementById('live-badge')?.classList.remove('disconnected');
+        } catch (_) {}
       };
-
-      sseSource.onerror = function () {
-        // SSE dropped — reconnect after 3s
+      sseSource.onerror = function() {
+        document.getElementById('live-badge')?.classList.add('disconnected');
         sseSource.close();
         sseSource = null;
         setTimeout(connectSSE, 3000);
       };
     }
 
-    // ── Search handler ────────────────────────────────────────────────────────────
-
     async function doSearch(q) {
-      if (!q.trim()) {
-        searchMode = false;
-        renderLeaderboard(lbData);
-        return;
-      }
+      if (!q.trim()) { searchMode = false; renderLeaderboard(lbData); return; }
       searchMode = true;
       const campus = campusFilter.value;
       let url = '/students/search?q=' + encodeURIComponent(q);
       if (campus) url += '&campus=' + encodeURIComponent(campus);
       try {
-        const results = await api('GET', url);
-        renderSearchResults(results);
+        renderSearchResults(await api('GET', url));
       } catch (err) {
         lbBodyEl.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:1rem;color:#c62828">Search error: ' + escHtml(err.message) + '</td></tr>';
       }
     }
 
-    searchInput.addEventListener('input', function () {
+    searchInput.addEventListener('input', function() {
       clearTimeout(searchTimer);
-      searchTimer = setTimeout(function () { doSearch(searchInput.value); }, 300);
+      searchTimer = setTimeout(() => doSearch(searchInput.value), 300);
     });
 
-    campusFilter.addEventListener('change', function () {
-      if (searchMode) {
-        doSearch(searchInput.value);
-      } else {
-        loadLeaderboard();
-        connectSSE(); // reconnect SSE with new campus filter
-      }
+    campusFilter.addEventListener('change', function() {
+      if (searchMode) doSearch(searchInput.value);
+      else { loadLeaderboard(); connectSSE(); }
     });
 
-    // ── Check-in button in nav ────────────────────────────────────────────────────
+    document.getElementById('btn-checkin').addEventListener('click', () => openModal('checkin-modal'));
 
-    document.getElementById('btn-checkin').addEventListener('click', function () { openModal('checkin-modal'); });
-
-    // ── Check-in form submission ──────────────────────────────────────────────────
-
-    document.getElementById('checkin-form').addEventListener('submit', async function (e) {
+    document.getElementById('checkin-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('checkin-submit');
       btn.disabled = true;
-      btn.textContent = 'Checking in…';
+      btn.textContent = 'Checking in...';
       hideAlert('checkin-alert');
       hideAlert('checkin-success');
-
       const body = {
         iu_username: document.getElementById('ci-username').value.trim().toLowerCase(),
         name: document.getElementById('ci-name').value.trim(),
         campus: document.getElementById('ci-campus').value,
         check_in_code: document.getElementById('ci-code').value.trim().toUpperCase(),
       };
-
       try {
         const res = await api('POST', '/checkin', body);
-        document.getElementById('checkin-success').textContent =
-          'You earned ' + res.points_earned + ' points for "' + res.event.title + '"! ' +
-          'Total this week: ' + res.total_points + ' pts. You\'re ranked #' + res.current_rank + '!';
+        const msg = 'You earned ' + res.points_earned + ' pts for "' + res.event.title + '"! Total: ' + res.total_points + ' pts. Rank #' + res.current_rank;
+        document.getElementById('checkin-success').textContent = msg;
         document.getElementById('checkin-success').classList.remove('hidden');
         document.getElementById('checkin-form').reset();
         document.getElementById('ci-campus').innerHTML = campusOptions(false);
-        // SSE will auto-update the leaderboard — no manual reload needed
       } catch (err) {
         showAlert('checkin-alert', err.message);
       } finally {
@@ -337,10 +308,8 @@
       }
     });
 
-    // ── Start: initial load + live SSE connection ─────────────────────────────────
-
-    loadLeaderboard();   // immediate first render
-    connectSSE();        // then keep in sync via SSE (updates within ~2s of any check-in)
+    loadLeaderboard();
+    connectSSE();
   </script>
 </body>
 

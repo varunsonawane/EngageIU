@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EngageIU — Admin Dashboard</title>
   <link rel="stylesheet" href="/static/assets/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     /* ── Admin dashboard — light theme ───────────────────────────────── */
     #login-prompt { text-align: center; padding: 5rem 1rem; }
@@ -74,6 +75,10 @@
     .btn-regen { background:none; border:none; color:#9ca3af; cursor:pointer; font-size:1rem;
                  padding:0 0.3rem; line-height:1; transition:color 0.15s; }
     .btn-regen:hover { color:#990000; }
+    .btn-qr { font-size:0.72rem !important; font-weight:700; color:#1d4ed8 !important; letter-spacing:0.5px;
+              border:1px solid #bfdbfe !important; border-radius:4px; background:#eff6ff !important;
+              padding:0.1rem 0.35rem !important; }
+    .btn-qr:hover { background:#dbeafe !important; color:#1e40af !important; }
 
     /* Category badges */
     .cat { display:inline-block; font-size:0.68rem; font-weight:700; padding:0.12rem 0.45rem;
@@ -212,31 +217,47 @@
       .an-grid   { grid-template-columns:repeat(2,1fr); }
       .an-insights { grid-template-columns:repeat(2,1fr); }
       .an-panels { grid-template-columns:1fr; }
+      .adm-form-row { grid-template-columns:1fr; }
     }
     @media (max-width:600px) {
-      .adm-stats { grid-template-columns:repeat(2,1fr); }
-      .adm-tab   { font-size:0.68rem; padding:0.75rem 0.6rem; }
+      .adm-stats { grid-template-columns:1fr 1fr; }
+      .adm-stat  { padding:0.9rem 0.75rem; }
+      .adm-stat .s-value { font-size:1.4rem; }
+      .adm-tabs  { padding:0 0.75rem; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+      .adm-tabs::-webkit-scrollbar { display:none; }
+      .adm-tab   { font-size:0.68rem; padding:0.75rem 0.5rem; }
+      .adm-panel { padding:1rem 0.75rem; }
+      .adm-toolbar input[type="text"] { min-width:140px; }
       .an-grid   { grid-template-columns:1fr 1fr; }
       .an-insights { grid-template-columns:1fr 1fr; }
+      .history-filters { gap:0.5rem; }
+      .history-filters input, .history-filters select { width:100%; }
+    }
+    @media (max-width:400px) {
+      .adm-stats { grid-template-columns:1fr; }
+      .an-grid   { grid-template-columns:1fr; }
+      .an-insights { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── Navigation (same as all other pages) ───────────────────────────────── -->
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="nav-brand">Engage<span>IU</span></a>
     <div class="nav-links">
       <a href="/">Home</a>
       <a href="/static/events.html">Events</a>
-      <a href="/static/analytics.html">Analytics</a>
+      <a href="/static/analytics.html">Hoosiers</a>
       <a href="/static/admin.html" class="active">Admin</a>
     </div>
     <div class="nav-actions">
       <button class="btn btn-secondary btn-sm hidden" id="btn-admin-logout">Logout</button>
       <button class="btn btn-secondary btn-sm" id="btn-admin-login">Admin</button>
     </div>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
@@ -438,7 +459,19 @@
 
 </div><!-- /#admin-dashboard -->
 
-<!-- ── Admin Login Modal (shared — same as other pages) ──────────────────── -->
+<div class="modal-overlay" id="qr-modal">
+  <div class="modal" style="max-width:340px;text-align:center">
+    <div class="modal-header">
+      <h2 id="qr-modal-title">Check-In QR Code</h2>
+      <button class="modal-close" data-close-modal="qr-modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.85rem;color:#666;margin-bottom:1rem" id="qr-modal-subtitle"></p>
+      <div id="qr-canvas" style="display:flex;justify-content:center;margin-bottom:1rem"></div>
+      <p style="font-family:monospace;font-size:1.1rem;font-weight:700;letter-spacing:2px;color:#990000" id="qr-code-text"></p>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="admin-login-modal">
   <div class="modal">
     <div class="modal-header">
@@ -518,7 +551,7 @@
 
 <!-- ── Footer ─────────────────────────────────────────────────────────────── -->
 <footer class="footer">
-  EngageIU &mdash; Built for Luddy Hacks &bull; Indiana University &bull;
+  EngageIU &bull; Built for Luddy Hacks &bull; Indiana University &bull;
   <a href="/docs">API Docs</a>
 </footer>
 
@@ -746,6 +779,7 @@ function renderEventsTable(list) {
       '<td style="white-space:nowrap">' +
         '<span class="code-box">' + esc(ev.check_in_code || '—') + '</span>' +
         '<button class="btn-regen" title="Regenerate code" onclick="regenCode(' + ev.id + ')">&#8635;</button>' +
+        '<button class="btn-regen btn-qr" title="Show QR code" data-qr-code="' + esc(ev.check_in_code || '') + '" data-qr-title="' + esc(ev.title) + '" onclick="handleQR(this)">QR</button>' +
       '</td>' +
       '<td>' + status + '</td>' +
       '<td style="white-space:nowrap">' +
@@ -754,6 +788,29 @@ function renderEventsTable(list) {
       '</td>' +
     '</tr>';
   }).join('');
+}
+
+function handleQR(btn) {
+  var code = btn.getAttribute('data-qr-code');
+  var title = btn.getAttribute('data-qr-title');
+  showQR(code, title);
+}
+
+function showQR(code, title) {
+  document.getElementById('qr-modal-title').textContent = title || 'Check-In QR Code';
+  document.getElementById('qr-modal-subtitle').textContent = 'Students scan this to check in';
+  document.getElementById('qr-code-text').textContent = code;
+  var container = document.getElementById('qr-canvas');
+  container.innerHTML = '';
+  new QRCode(container, {
+    text: code || 'INVALID',
+    width: 220,
+    height: 220,
+    colorDark: '#990000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+  openModal('qr-modal');
 }
 
 function regenCode(id) {

@@ -1,39 +1,32 @@
-"""
-Core leaderboard endpoints required by the Luddy Hacks case PDF:
-  POST   /add
-  DELETE /remove
-  GET    /leaderboard
-  GET    /info
-  GET    /performance
-  GET    /history   (grad-team requirement)
-"""
 from __future__ import annotations
 
 import asyncio
+import csv
+import io
 import json
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse, StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from database import SessionLocal
-
-from database import get_db
+from database import SessionLocal, get_db
 from models import Attendance, EndpointPerformance, Event, Student
 from routers.auth import try_get_admin, verify_admin_token
 from utils.stats import full_stats
 
 router = APIRouter()
 
+VALID_CAMPUSES = {
+    "IU Bloomington", "IU Indianapolis", "IU East", "IU Kokomo",
+    "IU Northwest", "IU South Bend", "IU Southeast", "IU Columbus", "IU Fort Wayne",
+}
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
 
 def _week_bounds(ref: datetime | None = None) -> tuple[datetime, datetime]:
-    """Return (sunday_00:00, saturday_23:59:59) for the week containing ref."""
     if ref is None:
         ref = datetime.now(timezone.utc).replace(tzinfo=None)
     days_since_sunday = (ref.weekday() + 1) % 7
@@ -45,7 +38,6 @@ def _week_bounds(ref: datetime | None = None) -> tuple[datetime, datetime]:
 
 
 def _student_rank(db: Session, student_id: int, week_start: datetime, week_end: datetime) -> int:
-    """Return 1-based rank of the student in the current weekly leaderboard."""
     student_total = (
         db.query(func.sum(Attendance.points_earned))
         .filter(
@@ -76,7 +68,6 @@ def _leaderboard_rows(
     campus: Optional[str] = None,
     limit: int = 10,
 ) -> list[dict]:
-    """Run aggregation SQL and return ranked rows."""
     q = (
         db.query(
             Student.id,
@@ -100,20 +91,52 @@ def _leaderboard_rows(
     rows = q.limit(limit).all()
     result = []
     for rank, row in enumerate(rows, start=1):
-        result.append(
-            {
-                "rank": rank,
-                "name": row.name,
-                "iu_username": row.iu_username,
-                "campus": row.campus,
-                "total_points": int(row.total_points),
-                "events_attended": int(row.events_attended),
-            }
-        )
+        result.append({
+            "rank": rank,
+            "student_id": row.id,
+            "name": row.name,
+            "iu_username": row.iu_username,
+            "campus": row.campus,
+            "total_points": int(row.total_points),
+            "events_attended": int(row.events_attended),
+        })
     return result
 
 
-# ── POST /add ────────────────────────────────────────────────────────────────
+def _enrich_rows(rows: list[dict], prev_ranks: dict[int, int]) -> list[dict]:
+    rank_improvements = []
+    for r in rows:
+        sid = r["student_id"]
+        prev = prev_ranks.get(sid)
+        if prev is not None:
+            change = prev - r["rank"]
+            r["rank_change"] = change
+            rank_improvements.append((sid, change))
+        else:
+            r["rank_change"] = None
+
+    best_improver_id = None
+    if rank_improvements:
+        best = max(rank_improvements, key=lambda x: x[1])
+        if best[1] > 0:
+            best_improver_id = best[0]
+
+    for r in rows:
+        sid = r["student_id"]
+        badges = []
+        if r["rank"] == 1:
+            badges.append("top")
+        if sid == best_improver_id:
+            badges.append("rising")
+        if r["events_attended"] >= 3:
+            badges.append("dedicated")
+        if sid in prev_ranks:
+            badges.append("consistent")
+        r["badges"] = badges
+        del r["student_id"]
+
+    return rows
+
 
 class AddEntryBody(BaseModel):
     iu_username: str
@@ -122,6 +145,27 @@ class AddEntryBody(BaseModel):
     event_id: int
     check_in_code: str
 
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Name cannot be empty")
+        return v.strip()
+
+    @field_validator("iu_username")
+    @classmethod
+    def username_not_blank(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("IU username cannot be empty")
+        return v.strip().lower()
+
+    @field_validator("campus")
+    @classmethod
+    def campus_valid(cls, v: str) -> str:
+        if v not in VALID_CAMPUSES:
+            raise ValueError(f"Invalid campus. Valid options: {', '.join(sorted(VALID_CAMPUSES))}")
+        return v
+
 
 @router.post("/add", summary="Add a leaderboard entry (admin)")
 async def add_entry(
@@ -129,7 +173,6 @@ async def add_entry(
     db: Session = Depends(get_db),
     _admin: str = Depends(verify_admin_token),
 ):
-    """Admin endpoint: validate code, create student if new, record attendance."""
     event = db.query(Event).filter(Event.id == body.event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
@@ -189,8 +232,6 @@ async def add_entry(
     }
 
 
-# ── DELETE /remove ───────────────────────────────────────────────────────────
-
 class RemoveEntryBody(BaseModel):
     iu_username: str
     event_id: int
@@ -202,7 +243,6 @@ async def remove_entry(
     db: Session = Depends(get_db),
     _admin: str = Depends(verify_admin_token),
 ):
-    """Admin endpoint: delete an attendance record."""
     student = db.query(Student).filter(Student.iu_username == body.iu_username).first()
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
@@ -228,7 +268,36 @@ async def remove_entry(
     }
 
 
-# ── GET /leaderboard ─────────────────────────────────────────────────────────
+@router.get("/leaderboard/export", summary="Export leaderboard as CSV")
+async def export_leaderboard(
+    campus: Optional[str] = Query(None, description="Filter by campus"),
+    week: Optional[str] = Query(None, description="ISO date within the desired week"),
+    db: Session = Depends(get_db),
+):
+    ref = None
+    if week:
+        try:
+            ref = datetime.fromisoformat(week)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid week date. Use YYYY-MM-DD.")
+
+    week_start, week_end = _week_bounds(ref)
+    rows = _leaderboard_rows(db, week_start, week_end, campus=campus, limit=500)
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Rank", "Name", "IU Username", "Campus", "Events Attended", "Total Points"])
+    for r in rows:
+        writer.writerow([r["rank"], r["name"], r["iu_username"], r["campus"], r["events_attended"], r["total_points"]])
+    output.seek(0)
+
+    filename = f"engageiu_leaderboard_{week_start.strftime('%Y-%m-%d')}.csv"
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
 
 @router.get("/leaderboard", summary="Top 10 weekly leaderboard")
 async def get_leaderboard(
@@ -237,11 +306,6 @@ async def get_leaderboard(
     format: Optional[str] = Query(None, description="Response format: json (default) or html"),
     db: Session = Depends(get_db),
 ):
-    """
-    Returns top 10 students ranked by total points for the current week.
-    Supports ?format=html for an HTML table (satisfies PDF graphical format requirement).
-    Week is Sunday–Saturday; use ?week=YYYY-MM-DD to view a different week.
-    """
     ref = None
     if week:
         try:
@@ -252,27 +316,42 @@ async def get_leaderboard(
     week_start, week_end = _week_bounds(ref)
     rows = _leaderboard_rows(db, week_start, week_end, campus=campus, limit=10)
 
+    prev_start = week_start - timedelta(days=7)
+    prev_end = week_start - timedelta(seconds=1)
+    prev_rows = _leaderboard_rows(db, prev_start, prev_end, limit=200)
+    prev_ranks = {r["student_id"]: r["rank"] for r in prev_rows}
+
+    enriched = _enrich_rows(rows, prev_ranks)
+
     if format == "html":
-        week_label = f"{week_start.strftime('%b %d')} – {week_end.strftime('%b %d, %Y')}"
+        week_label = f"{week_start.strftime('%b %d')} - {week_end.strftime('%b %d, %Y')}"
         campus_label = campus or "All Campuses"
         rows_html = ""
         medal = {1: "🥇", 2: "🥈", 3: "🥉"}
-        for r in rows:
+
+        def trend_arrow(rc):
+            if rc is None:
+                return "<span style='color:#1565c0;font-size:0.7rem;font-weight:700'>NEW</span>"
+            if rc > 0:
+                return f"<span style='color:#4caf50'>&#9650; {rc}</span>"
+            if rc < 0:
+                return f"<span style='color:#f44336'>&#9660; {abs(rc)}</span>"
+            return "<span style='color:#9ca3af'>&#8212;</span>"
+
+        def badge_html(badges):
+            label = {"top": "👑 Top", "rising": "📈 Rising", "dedicated": "⚡ Dedicated", "consistent": "⭐ Consistent"}
+            return " ".join(f"<span style='background:#f3f4f6;border-radius:99px;padding:1px 6px;font-size:0.65rem;font-weight:600'>{label[b]}</span>" for b in badges if b in label)
+
+        for r in enriched:
             icon = medal.get(r["rank"], "")
-            rank_n = r["rank"]
-            name = r["name"]
-            uname = r["iu_username"]
-            campus = r["campus"]
-            events_att = r["events_attended"]
-            total_pts = r["total_points"]
             rows_html += (
-                f"<tr class='rank-{rank_n}'>"
-                f"<td>{icon} {rank_n}</td>"
-                f"<td>{name}</td>"
-                f"<td>{uname}</td>"
-                f"<td>{campus}</td>"
-                f"<td>{events_att}</td>"
-                f"<td><strong>{total_pts}</strong></td>"
+                f"<tr class='rank-{r['rank']}'>"
+                f"<td>{icon} {r['rank']} {trend_arrow(r.get('rank_change'))}</td>"
+                f"<td>{r['name']}<br><small>{badge_html(r.get('badges', []))}</small></td>"
+                f"<td>{r['iu_username']}</td>"
+                f"<td>{r['campus']}</td>"
+                f"<td>{r['events_attended']}</td>"
+                f"<td><strong>{r['total_points']}</strong></td>"
                 f"</tr>"
             )
         html = f"""<!DOCTYPE html>
@@ -282,11 +361,12 @@ async def get_leaderboard(
 <title>EngageIU Leaderboard</title>
 <style>
   body {{ font-family: 'Segoe UI', sans-serif; background: #f5f5f5; padding: 2rem; }}
-  h1 {{ color: #990000; }} h2 {{ color: #444; font-weight: normal; font-size: 1rem; }}
-  table {{ border-collapse: collapse; width: 100%; max-width: 800px; background: #fff;
+  h1 {{ color: #990000; }}
+  h2 {{ color: #444; font-weight: normal; font-size: 1rem; }}
+  table {{ border-collapse: collapse; width: 100%; max-width: 900px; background: #fff;
            box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }}
   th {{ background: #990000; color: #fff; padding: 12px 16px; text-align: left; }}
-  td {{ padding: 12px 16px; border-bottom: 1px solid #eee; }}
+  td {{ padding: 12px 16px; border-bottom: 1px solid #eee; vertical-align: middle; }}
   tr.rank-1 {{ background: #fff8f8; font-weight: bold; }}
   tr:hover {{ background: #fafafa; }}
 </style>
@@ -308,22 +388,15 @@ async def get_leaderboard(
         "week_start": week_start.isoformat(),
         "week_end": week_end.isoformat(),
         "campus_filter": campus,
-        "leaderboard": rows,
+        "leaderboard": enriched,
     }
 
-
-# ── GET /leaderboard/stream (SSE — live updates) ─────────────────────────────
 
 @router.get("/leaderboard/stream", summary="Live leaderboard via Server-Sent Events")
 async def leaderboard_stream(
     request: Request,
     campus: Optional[str] = Query(None),
 ):
-    """
-    Server-Sent Events endpoint. Pushes a full leaderboard payload whenever
-    data changes (checked every 2 seconds). Browser reconnects automatically
-    if the connection drops.
-    """
     async def generate():
         last_payload = None
         while True:
@@ -333,10 +406,15 @@ async def leaderboard_stream(
             try:
                 week_start, week_end = _week_bounds()
                 rows = _leaderboard_rows(db, week_start, week_end, campus=campus)
+                prev_start = week_start - timedelta(days=7)
+                prev_end = week_start - timedelta(seconds=1)
+                prev_rows = _leaderboard_rows(db, prev_start, prev_end, limit=200)
+                prev_ranks = {r["student_id"]: r["rank"] for r in prev_rows}
+                enriched = _enrich_rows(rows, prev_ranks)
                 payload = json.dumps({
                     "week_start": week_start.isoformat(),
                     "week_end": week_end.isoformat(),
-                    "leaderboard": rows,
+                    "leaderboard": enriched,
                 })
             finally:
                 db.close()
@@ -358,23 +436,13 @@ async def leaderboard_stream(
     )
 
 
-# ── GET /info ─────────────────────────────────────────────────────────────────
-
 @router.get("/info", summary="Score statistics (always full extended stats)")
 async def get_info(
     db: Session = Depends(get_db),
     admin: Optional[str] = Depends(try_get_admin),
 ):
-    """
-    Always returns full stats: mean, median, Q1, Q3, min, max, total_students,
-    total_events, std_deviation, percentile_ranks, score_distribution,
-    top_campus, most_attended_event, weekly_growth_rate_pct,
-    avg_events_per_student, variance, iqr, range_val.
-    Admin token accepted for backward compatibility but does not gate data.
-    """
     week_start, week_end = _week_bounds()
 
-    # All weekly scores per student (SQL aggregation)
     score_rows = (
         db.query(
             Student.id,
@@ -396,7 +464,6 @@ async def get_info(
 
     stats = full_stats(scores)
 
-    # Top campus by total weekly points
     campus_rows = (
         db.query(
             Student.campus,
@@ -413,7 +480,6 @@ async def get_info(
     )
     top_campus = campus_rows.campus if campus_rows else None
 
-    # Most attended event this week
     event_row = (
         db.query(
             Event.title,
@@ -430,7 +496,6 @@ async def get_info(
     )
     most_attended = event_row.title if event_row else None
 
-    # Category breakdown: check-ins per event category this week
     cat_rows = (
         db.query(
             Event.category,
@@ -451,7 +516,6 @@ async def get_info(
     ]
     top_category = category_breakdown[0]["category"] if category_breakdown else None
 
-    # Most active day of week (0=Mon ... 6=Sun) across all attendance
     all_checkins = (
         db.query(Attendance.checked_in_at)
         .filter(
@@ -467,7 +531,6 @@ async def get_info(
         day_counts[d] = day_counts.get(d, 0) + 1
     most_active_day = max(day_counts, key=day_counts.get) if day_counts else None
 
-    # Weekly growth rate: compare this week's check-ins vs last week's
     prev_start = week_start - timedelta(days=7)
     prev_end = week_start - timedelta(seconds=1)
     this_week_count = (
@@ -503,10 +566,7 @@ async def get_info(
         .scalar()
         or 0
     )
-    if students_with_points > 0:
-        avg_events = round(total_attendance_this_week / students_with_points, 2)
-    else:
-        avg_events = 0.0
+    avg_events = round(total_attendance_this_week / students_with_points, 2) if students_with_points > 0 else 0.0
 
     std_dev = stats["std_deviation"]
     variance = round(std_dev ** 2, 2)
@@ -543,14 +603,11 @@ async def get_info(
     }
 
 
-# ── GET /performance ──────────────────────────────────────────────────────────
-
 @router.get("/performance", summary="Average endpoint execution times (admin)")
 async def get_performance(
     db: Session = Depends(get_db),
     _admin: str = Depends(verify_admin_token),
 ):
-    """Returns average, min, max response time per endpoint, sorted by avg descending."""
     rows = (
         db.query(
             EndpointPerformance.endpoint,
@@ -579,8 +636,6 @@ async def get_performance(
     }
 
 
-# ── GET /history ──────────────────────────────────────────────────────────────
-
 @router.get("/history", summary="Score submission history with filtering (admin, grad requirement)")
 async def get_history(
     name: Optional[str] = Query(None, description="Filter by student name (partial match)"),
@@ -594,10 +649,6 @@ async def get_history(
     db: Session = Depends(get_db),
     _admin: str = Depends(verify_admin_token),
 ):
-    """
-    Grad-team requirement: full check-in history with timestamps.
-    Filterable by name (partial), iu_username (partial), event_id, event category, and date range.
-    """
     q = (
         db.query(Attendance)
         .join(Student, Student.id == Attendance.student_id)
@@ -607,27 +658,20 @@ async def get_history(
 
     if name:
         q = q.filter(Student.name.ilike(f"%{name}%"))
-
     if iu_username:
         q = q.filter(Student.iu_username.ilike(f"%{iu_username}%"))
-
     if event_id:
         q = q.filter(Attendance.event_id == event_id)
-
     if category:
         q = q.filter(Event.category.ilike(f"%{category}%"))
-
     if start_date:
         try:
-            start_dt = datetime.fromisoformat(start_date)
-            q = q.filter(Attendance.checked_in_at >= start_dt)
+            q = q.filter(Attendance.checked_in_at >= datetime.fromisoformat(start_date))
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid start_date. Use YYYY-MM-DD.")
-
     if end_date:
         try:
-            end_dt = datetime.fromisoformat(end_date) + timedelta(days=1)
-            q = q.filter(Attendance.checked_in_at < end_dt)
+            q = q.filter(Attendance.checked_in_at < datetime.fromisoformat(end_date) + timedelta(days=1))
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid end_date. Use YYYY-MM-DD.")
 

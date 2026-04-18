@@ -15,7 +15,6 @@ from models import EndpointPerformance
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize DB + seed on startup
     init_db()
     db = SessionLocal()
     try:
@@ -45,27 +44,23 @@ app.add_middleware(
 )
 
 
-# ── Performance tracking middleware ─────────────────────────────────────────
 @app.middleware("http")
 async def track_performance(request: Request, call_next):
     start = time.perf_counter()
     response = await call_next(request)
     elapsed_ms = (time.perf_counter() - start) * 1000
 
-    # Skip recording performance entries for the /performance endpoint itself
-    # and static file requests to avoid noise
     path = request.url.path
-    skip_prefixes = ("/static", "/favicon", "/openapi", "/docs", "/redoc")
-    if not any(path.startswith(p) for p in skip_prefixes):
+    skip = ("/static", "/favicon", "/openapi", "/docs", "/redoc")
+    if not any(path.startswith(p) for p in skip):
         db: Session = SessionLocal()
         try:
-            perf = EndpointPerformance(
+            db.add(EndpointPerformance(
                 endpoint=path,
                 method=request.method,
                 response_time_ms=round(elapsed_ms, 3),
                 called_at=datetime.now(timezone.utc).replace(tzinfo=None),
-            )
-            db.add(perf)
+            ))
             db.commit()
         except Exception:
             db.rollback()
@@ -75,15 +70,15 @@ async def track_performance(request: Request, call_next):
     return response
 
 
-# ── Routers ──────────────────────────────────────────────────────────────────
 from routers import auth, leaderboard, events  # noqa: E402
 
 app.include_router(auth.router, tags=["auth"])
 app.include_router(leaderboard.router, tags=["leaderboard"])
 app.include_router(events.router, tags=["events"])
 
-# ── Static frontend files ─────────────────────────────────────────────────
-FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
 if os.path.isdir(FRONTEND_DIR):
     app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 

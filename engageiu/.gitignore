@@ -42,5 +42,8 @@ htmlcov/
 # Docker
 .dockerignore
 
+# Claude Code
+.claude/
+
 # Node (if any tooling added later)
 node_modules/

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EngageIU — Analytics</title>
+  <title>EngageIU — What are Hoosiers Like?</title>
   <link rel="stylesheet" href="/static/assets/style.css">
   <style>
     /* ── Analytics page styles ───────────────────────────────────────── */
@@ -118,6 +118,29 @@
     .pct-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f3f4f6; color: #374151; }
     .pct-table tr:last-child td { border-bottom: none; }
 
+    /* Technical labels */
+    .tech-tag {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 600;
+      font-family: monospace;
+      color: #6b7280;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 1px 5px;
+      letter-spacing: 0.03em;
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+    .tech-subtitle {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      font-style: italic;
+      margin-top: -0.15rem;
+      margin-bottom: 0.75rem;
+    }
+
     /* Loading */
     .loading-msg { text-align: center; padding: 3rem; color: #bbb; font-size: 0.95rem; }
 
@@ -137,73 +160,99 @@
 </head>
 <body>
 
-<!-- ── Navigation ──────────────────────────────────────────────────────────── -->
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="nav-brand">Engage<span>IU</span></a>
     <div class="nav-links">
       <a href="/">Home</a>
       <a href="/static/events.html">Events</a>
-      <a href="/static/analytics.html" class="active">Analytics</a>
+      <a href="/static/analytics.html" class="active">Hoosiers</a>
       <a href="/static/admin.html" class="admin-nav-link hidden">Admin</a>
     </div>
     <div class="nav-actions">
       <button class="btn btn-secondary btn-sm hidden" id="btn-admin-logout">Logout</button>
       <button class="btn btn-secondary btn-sm" id="btn-admin-login">Admin</button>
     </div>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
-
-<!-- ── Hero ─────────────────────────────────────────────────────────────────── -->
 <section class="hero" style="padding:2rem 1.5rem">
-  <h1 style="font-size:1.9rem">IU Engagement <span>Analytics</span></h1>
+  <h1 style="font-size:1.9rem">What are <span>Hoosiers Like?</span></h1>
   <p style="margin-bottom:0">
-    Live weekly statistics for campus engagement across the IU system.
-    <span class="refresh-badge"><span class="refresh-dot"></span> Auto-refreshes every 60s</span>
+    A snapshot of how IU students engage with campus life this week.
+    <span class="refresh-badge"><span class="refresh-dot"></span> Live data</span>
   </p>
 </section>
 
-<!-- ── Main content ─────────────────────────────────────────────────────────── -->
+
 <main class="container section">
   <div class="loading-msg" id="loading-msg">Loading analytics…</div>
   <div id="analytics-body" style="display:none">
 
     <!-- Row 1: Stat cards -->
     <div class="an-grid">
-      <div class="an-card"><div class="al">Mean Score</div><div class="av" id="an-mean">—</div></div>
-      <div class="an-card"><div class="al">Median Score</div><div class="av" id="an-median">—</div></div>
-      <div class="an-card"><div class="al">Std Deviation</div><div class="av" id="an-std">—</div></div>
-      <div class="an-card"><div class="al">Avg Events / Student</div><div class="av neutral" id="an-avg">—</div></div>
+      <div class="an-card">
+        <div class="al">Average Points <span class="tech-tag">mean</span></div>
+        <div class="av" id="an-mean">—</div>
+      </div>
+      <div class="an-card">
+        <div class="al">Typical Hoosier <span class="tech-tag">median</span></div>
+        <div class="av" id="an-median">—</div>
+      </div>
+      <div class="an-card">
+        <div class="al">How Spread Out <span class="tech-tag">std deviation</span></div>
+        <div class="av" id="an-std">—</div>
+      </div>
+      <div class="an-card">
+        <div class="al">Events Per Person <span class="tech-tag">avg attendance</span></div>
+        <div class="av neutral" id="an-avg">—</div>
+      </div>
     </div>
 
     <!-- Row 2: Insights -->
     <div class="an-insights">
       <div class="an-insight">
-        <div class="an-insight-icon">🏆</div>
-        <div class="an-insight-body"><div class="il">Top Category</div><div class="iv" id="ins-top-cat">—</div></div>
+        <div class="an-insight-icon">🎓</div>
+        <div class="an-insight-body">
+          <div class="il">Favorite Type of Event <span class="tech-tag">top category</span></div>
+          <div class="iv" id="ins-top-cat">—</div>
+        </div>
       </div>
       <div class="an-insight">
         <div class="an-insight-icon">📅</div>
-        <div class="an-insight-body"><div class="il">Most Active Day</div><div class="iv" id="ins-active-day">—</div></div>
+        <div class="an-insight-body">
+          <div class="il">Most Popular Day <span class="tech-tag">peak day</span></div>
+          <div class="iv" id="ins-active-day">—</div>
+        </div>
       </div>
       <div class="an-insight">
         <div class="an-insight-icon">👥</div>
-        <div class="an-insight-body"><div class="il">Total Students</div><div class="iv" id="ins-total-students">—</div></div>
+        <div class="an-insight-body">
+          <div class="il">Hoosiers Participating <span class="tech-tag">n</span></div>
+          <div class="iv" id="ins-total-students">—</div>
+        </div>
       </div>
       <div class="an-insight">
-        <div class="an-insight-icon">⭐</div>
-        <div class="an-insight-body"><div class="il">Max Score</div><div class="iv" id="ins-max-score">—</div></div>
+        <div class="an-insight-icon">🏅</div>
+        <div class="an-insight-body">
+          <div class="il">Highest Score This Week <span class="tech-tag">max</span></div>
+          <div class="iv" id="ins-max-score">—</div>
+        </div>
       </div>
     </div>
 
     <!-- Row 3: Score Distribution + Top Categories -->
     <div class="an-panels">
       <div class="an-panel">
-        <div class="an-panel-title">Score Distribution</div>
+        <div class="an-panel-title">How Points Spread Out</div>
+        <div class="tech-subtitle">Score Distribution (histogram)</div>
         <div id="dist-chart"></div>
       </div>
       <div class="an-panel">
-        <div class="an-panel-title">Top Categories (Check-ins)</div>
+        <div class="an-panel-title">What Hoosiers Show Up For</div>
+        <div class="tech-subtitle">Category Breakdown by check-in count</div>
         <div id="cat-chart"></div>
       </div>
     </div>
@@ -211,14 +260,16 @@
     <!-- Row 4: Quartile Breakdown + Percentile Ranks -->
     <div class="an-panels">
       <div class="an-panel">
-        <div class="an-panel-title">Quartile Breakdown</div>
+        <div class="an-panel-title">Where Do You Fall?</div>
+        <div class="tech-subtitle">Quartiles: Q1, Q2 (median), Q3 with IQR</div>
         <div class="boxplot-vals" id="bp-vals"></div>
         <div class="boxplot-row" id="bp-row"><div class="bp-line"></div></div>
         <div class="boxplot-labels" id="bp-labels"></div>
         <div class="an-extra" id="an-extra"></div>
       </div>
       <div class="an-panel">
-        <div class="an-panel-title">Percentile Ranks</div>
+        <div class="an-panel-title">Score Tiers This Week</div>
+        <div class="tech-subtitle">Percentile Ranks (P25, P50, P75, P90)</div>
         <table class="pct-table">
           <thead><tr><th>Percentile</th><th>Score Range</th><th>Range</th></tr></thead>
           <tbody id="pct-tbody"><tr><td colspan="3" style="color:#9ca3af">Loading…</td></tr></tbody>
@@ -229,7 +280,7 @@
   </div>
 </main>
 
-<!-- ── Admin Login Modal ─────────────────────────────────────────────────────── -->
+
 <div class="modal-overlay" id="admin-login-modal">
   <div class="modal">
     <div class="modal-header">
@@ -253,9 +304,9 @@
   </div>
 </div>
 
-<!-- ── Footer ─────────────────────────────────────────────────────────────────── -->
+
 <footer class="footer">
-  EngageIU &mdash; Built for Luddy Hacks &bull; Indiana University &bull;
+  EngageIU &bull; Built for Luddy Hacks &bull; Indiana University &bull;
   <a href="/docs">API Docs</a>
 </footer>
 
