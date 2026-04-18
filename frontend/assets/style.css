@@ -344,10 +344,6 @@ input[type="checkbox"] {
   font-size: 0.88rem;
   color: #555;
   flex: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .event-card-footer {
