@@ -31,7 +31,7 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://luddy.indiana.edu/events",
             check_in_code="LUDDY2025",
-            points=25,
+            points=10,
             event_date=week_start + timedelta(days=1, hours=9),
         ),
         Event(
@@ -44,7 +44,7 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://kelley.iu.edu/events",
             check_in_code="KELLEY25",
-            points=20,
+            points=10,
             event_date=week_start + timedelta(days=1, hours=13),
         ),
         Event(
@@ -58,7 +58,7 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://research.iu.edu/events",
             check_in_code="IUPUIRC5",
-            points=15,
+            points=10,
             event_date=week_start + timedelta(days=2, hours=10),
         ),
         Event(
@@ -84,7 +84,7 @@ def seed_data(db: Session):
             campus="IU East",
             event_url="https://iue.iu.edu/events",
             check_in_code="IUEAST25",
-            points=15,
+            points=10,
             event_date=week_start + timedelta(days=2, hours=17),
         ),
         Event(
@@ -97,7 +97,7 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://iuhacks.io",
             check_in_code="LHACKS25",
-            points=30,
+            points=10,
             event_date=week_start + timedelta(days=3, hours=9),
         ),
         Event(
@@ -123,7 +123,7 @@ def seed_data(db: Session):
             campus="IU Kokomo",
             event_url="https://iuk.iu.edu/events",
             check_in_code="KOKOPIT5",
-            points=20,
+            points=10,
             event_date=week_start + timedelta(days=3, hours=18),
         ),
         Event(
@@ -136,7 +136,7 @@ def seed_data(db: Session):
             campus="IU Northwest",
             event_url="https://iun.iu.edu/events",
             check_in_code="NWLEAD5",
-            points=15,
+            points=10,
             event_date=week_start + timedelta(days=4, hours=11),
         ),
         Event(
@@ -149,7 +149,7 @@ def seed_data(db: Session):
             campus="IU Southeast",
             event_url="https://ius.iu.edu/events",
             check_in_code="SECODE5",
-            points=20,
+            points=10,
             event_date=week_start + timedelta(days=4, hours=9),
         ),
         Event(
@@ -162,7 +162,7 @@ def seed_data(db: Session):
             campus="IU Columbus",
             event_url="https://iuc.iu.edu/events",
             check_in_code="IUCDIV5",
-            points=15,
+            points=10,
             event_date=week_start + timedelta(days=4, hours=13),
         ),
         Event(
@@ -175,7 +175,7 @@ def seed_data(db: Session):
             campus="IU Fort Wayne",
             event_url="https://iufw.iu.edu/events",
             check_in_code="FWEXPO5",
-            points=20,
+            points=10,
             event_date=week_start + timedelta(days=5, hours=10),
         ),
         Event(
@@ -188,7 +188,7 @@ def seed_data(db: Session):
             campus="IU Bloomington",
             event_url="https://law.indiana.edu/events",
             check_in_code="LAWMOCK5",
-            points=15,
+            points=10,
             event_date=week_start + timedelta(days=5, hours=14),
         ),
         Event(
@@ -201,7 +201,7 @@ def seed_data(db: Session):
             campus="IU Indianapolis",
             event_url="https://medicine.iu.edu/events",
             check_in_code="HEALTH25",
-            points=20,
+            points=10,
             event_date=week_start + timedelta(days=5, hours=9),
         ),
         Event(
@@ -221,39 +221,69 @@ def seed_data(db: Session):
         Event(
             title="Little 500 Kickoff Party",
             category="Sports",
+            description=(
+                "Celebrate the start of Indiana's iconic Little 500 bicycle race weekend with "
+                "live music, food trucks, and campus spirit activities. The Little 500 is the "
+                "world's largest collegiate bike race — don't miss the kickoff bash!"
+            ),
             campus="IU Bloomington",
+            event_url="https://iusf.indiana.edu/l500/index.html",
             check_in_code="LITTLE500",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=1, hours=16),
         ),
         Event(
             title="IU Career Fair: STEM Edition",
             category="Career",
+            description=(
+                "Connect with 60+ top employers recruiting for engineering, data science, "
+                "cybersecurity, and research roles. Bring your resume and IU ID. Companies "
+                "include Google, Salesforce, Eli Lilly, Cummins, and more."
+            ),
             campus="IU Bloomington",
+            event_url="https://careers.indiana.edu/channels/career-fairs/index.html",
             check_in_code="STEMFAIR",
-            points=20,
+            points=10,
             event_date=now + timedelta(days=2, hours=10),
         ),
         Event(
             title="Lotus World Music & Arts Festival",
             category="Cultural",
+            description=(
+                "Bloomington's celebrated annual world music festival returns with artists from "
+                "over 20 countries performing across downtown venues and the IU campus. "
+                "Free student admission with valid IU ID."
+            ),
             campus="IU Bloomington",
+            event_url="https://lotusfest.org",
             check_in_code="LOTUS25",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=3, hours=14),
         ),
         Event(
             title="Undergraduate Research Symposium",
             category="Academic",
+            description=(
+                "IU's premier undergraduate research showcase featuring 200+ student poster "
+                "presentations across science, humanities, and social sciences. Meet faculty "
+                "mentors and learn about research opportunities at IU."
+            ),
             campus="IU Bloomington",
+            event_url="https://research.indiana.edu/undergraduate/index.html",
             check_in_code="UGRSYMP5",
-            points=20,
+            points=10,
             event_date=now + timedelta(days=4, hours=9),
         ),
         Event(
             title="IU Basketball Watch Party",
             category="Sports",
+            description=(
+                "Watch the Hoosiers live on the big screen at Alumni Hall with fellow fans. "
+                "Free popcorn and drinks for the first 200 attendees. Wear your cream and "
+                "crimson — the bigger the crowd, the louder the roar!"
+            ),
             campus="IU Bloomington",
+            event_url="https://iuhoosiers.com/sports/mens-basketball",
             check_in_code="BBALL25",
             points=10,
             event_date=now + timedelta(days=4, hours=19),
@@ -261,7 +291,13 @@ def seed_data(db: Session):
         Event(
             title="Study Abroad Information Fair",
             category="Academic",
+            description=(
+                "Explore 200+ IU study abroad programs across 50+ countries. Chat with "
+                "program advisors, returned students, and international partners. Learn about "
+                "scholarships, credit transfers, and application deadlines."
+            ),
             campus="IU Bloomington",
+            event_url="https://overseas.iu.edu/index.html",
             check_in_code="STUDYAB5",
             points=10,
             event_date=now + timedelta(days=5, hours=11),
@@ -269,23 +305,41 @@ def seed_data(db: Session):
         Event(
             title="Kelley Consulting Case Competition",
             category="Career",
+            description=(
+                "Test your business acumen in this live case competition sponsored by Kelley "
+                "School of Business alumni. Teams of 3 have 30 minutes to analyze and present "
+                "a real business problem. Top prizes include internship opportunities."
+            ),
             campus="IU Bloomington",
+            event_url="https://kelley.iu.edu/programs/undergrad/student-life/competitions.html",
             check_in_code="KELCASE5",
-            points=25,
+            points=10,
             event_date=now + timedelta(days=6, hours=9),
         ),
         Event(
             title="Data Science & ML Workshop",
             category="Tech",
+            description=(
+                "Hands-on workshop covering Python machine learning with scikit-learn and "
+                "PyTorch. Build your first neural network, learn feature engineering, and "
+                "explore real IU datasets. Laptops required — all skill levels welcome."
+            ),
             campus="IU Bloomington",
+            event_url="https://luddy.indiana.edu/news-events/events/index.html",
             check_in_code="DATASCI5",
-            points=20,
+            points=10,
             event_date=now + timedelta(days=7, hours=13),
         ),
         Event(
             title="Latino Heritage Month Celebration",
             category="Cultural",
+            description=(
+                "Celebrate Latino culture with live performances of salsa, cumbia, and mariachi, "
+                "traditional food from across Latin America, and art displays by IU Indianapolis "
+                "student artists. Co-sponsored by IUPUI's Latino Cultural Center."
+            ),
             campus="IU Indianapolis",
+            event_url="https://diversity.iupui.edu/centers/latino/events.html",
             check_in_code="LATINO25",
             points=10,
             event_date=now + timedelta(days=8, hours=17),
@@ -293,31 +347,55 @@ def seed_data(db: Session):
         Event(
             title="IU Day of Service: Community Volunteer",
             category="Social",
+            description=(
+                "Join hundreds of IU students volunteering across Indianapolis neighborhoods. "
+                "Projects include park cleanups, food bank sorting, school painting, and senior "
+                "center visits. All supplies provided — just bring your energy!"
+            ),
             campus="IU Indianapolis",
+            event_url="https://servicelearning.iupui.edu",
             check_in_code="DAYSERV5",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=9, hours=8),
         ),
         Event(
-            title="Medical School Open House",
+            title="IU School of Medicine Open House",
             category="Academic",
+            description=(
+                "Pre-med students: tour the IU School of Medicine facilities, meet current "
+                "medical students, and attend Q&A sessions with admissions officers. Learn "
+                "about MD, MD-PhD, and dual-degree program requirements."
+            ),
             campus="IU Indianapolis",
+            event_url="https://medicine.iu.edu/admissions/events",
             check_in_code="MEDOPEN5",
-            points=20,
+            points=10,
             event_date=now + timedelta(days=10, hours=10),
         ),
         Event(
             title="Cybersecurity Awareness Workshop",
             category="Tech",
+            description=(
+                "Learn to protect yourself and your data with hands-on demos of phishing "
+                "simulations, password managers, VPNs, and secure coding practices. "
+                "Hosted by IUPUI's Center for Information Security Education."
+            ),
             campus="IU Indianapolis",
+            event_url="https://soic.iupui.edu/events",
             check_in_code="CYBER25",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=11, hours=14),
         ),
         Event(
             title="IU East Community Art Exhibition",
             category="Cultural",
+            description=(
+                "Student and faculty artwork on display in the Whitewater Hall Gallery, "
+                "featuring paintings, sculpture, photography, and digital media. "
+                "Opening reception with light refreshments — free and open to the public."
+            ),
             campus="IU East",
+            event_url="https://east.indiana.edu/arts-humanities/index.html",
             check_in_code="IUEART5",
             points=10,
             event_date=now + timedelta(days=12, hours=12),
@@ -325,7 +403,13 @@ def seed_data(db: Session):
         Event(
             title="Financial Wellness Seminar",
             category="Health",
+            description=(
+                "Learn practical money skills: budgeting on a student income, understanding "
+                "FAFSA and scholarships, building credit, and planning for student loan "
+                "repayment. Free one-on-one advising slots available after the seminar."
+            ),
             campus="IU East",
+            event_url="https://east.indiana.edu/student-services/financial-aid/index.html",
             check_in_code="FINWEL5",
             points=10,
             event_date=now + timedelta(days=13, hours=15),
@@ -333,55 +417,97 @@ def seed_data(db: Session):
         Event(
             title="IU Kokomo Science Fair",
             category="Academic",
+            description=(
+                "Annual showcase of undergraduate STEM research at IU Kokomo. Student teams "
+                "present original experiments and engineering projects judged by local industry "
+                "professionals. Best-in-show receives a $500 research grant."
+            ),
             campus="IU Kokomo",
+            event_url="https://iuk.iu.edu/academics/stem/index.html",
             check_in_code="KOKSCI5",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=14, hours=10),
         ),
         Event(
             title="Northwest Student Leadership Summit",
             category="Social",
+            description=(
+                "A full-day leadership development conference for IU Northwest students. "
+                "Workshops on public speaking, team management, and campus advocacy. "
+                "Keynote by a Northwest alumni now serving in state government."
+            ),
             campus="IU Northwest",
+            event_url="https://www.iun.edu/student-affairs/leadership.htm",
             check_in_code="NWSLS25",
-            points=20,
+            points=10,
             event_date=now + timedelta(days=15, hours=9),
         ),
         Event(
             title="South Bend Civic Engagement Forum",
             category="Social",
+            description=(
+                "Faculty, students, and South Bend city officials discuss how IU South Bend "
+                "students can shape local policy on housing, transit, and economic development. "
+                "Registration required — seats limited to 75 participants."
+            ),
             campus="IU South Bend",
+            event_url="https://www.iusb.edu/community-engagement/index.html",
             check_in_code="SBCEF25",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=16, hours=13),
         ),
         Event(
             title="Southeast Business Pitch Competition",
             category="Career",
+            description=(
+                "Present your startup idea to a panel of Louisville-area investors and Kelley "
+                "faculty judges. Teams of 1-4 have 8 minutes to pitch, then face Q&A. "
+                "Winner receives $1,000 and mentorship from IU Ventures."
+            ),
             campus="IU Southeast",
+            event_url="https://www.ius.edu/business/student-resources.html",
             check_in_code="SEBPC25",
-            points=25,
+            points=10,
             event_date=now + timedelta(days=17, hours=14),
         ),
         Event(
             title="Columbus Nursing Clinical Showcase",
             category="Academic",
+            description=(
+                "IU Columbus nursing students present their capstone clinical projects to "
+                "Bartholomew County health professionals. Topics include elder care, "
+                "community health, and pediatric nursing innovations."
+            ),
             campus="IU Columbus",
+            event_url="https://columbus.iu.edu/academics/nursing.html",
             check_in_code="COLNRS5",
-            points=20,
+            points=10,
             event_date=now + timedelta(days=18, hours=10),
         ),
         Event(
             title="Fort Wayne Engineering Career Night",
             category="Career",
+            description=(
+                "Network with engineers from Raytheon, Lincoln Financial, Steel Dynamics, and "
+                "other Fort Wayne employers. Dress business casual, bring 10 copies of your "
+                "resume, and explore full-time and co-op opportunities."
+            ),
             campus="IU Fort Wayne",
+            event_url="https://www.iufw.edu/engineering-technology/index.html",
             check_in_code="FWECN25",
-            points=20,
+            points=10,
             event_date=now + timedelta(days=19, hours=17),
         ),
         Event(
             title="IU Mental Health Awareness Walk",
             category="Health",
+            description=(
+                "Join IU's Counseling and Psychological Services for a 2-mile mindfulness walk "
+                "through campus. Ends with guided meditation, resource tables, and free "
+                "therapy pet visits. Together we walk to reduce stigma around mental health."
+            ),
             campus="IU Bloomington",
+            event_url="https://healthcenter.indiana.edu/counseling/index.html",
             check_in_code="MHWALK5",
             points=10,
             event_date=now + timedelta(days=20, hours=8),
@@ -389,31 +515,55 @@ def seed_data(db: Session):
         Event(
             title="Open Source Contribution Day",
             category="Tech",
+            description=(
+                "Collaborate on real open-source projects alongside IU Computer Science faculty "
+                "and industry mentors. Beginners welcome — learn Git, GitHub workflows, and "
+                "how to make your first pull request to a production codebase."
+            ),
             campus="IU Bloomington",
+            event_url="https://luddy.indiana.edu/research/centers/index.html",
             check_in_code="OPENSR5",
-            points=20,
+            points=10,
             event_date=now + timedelta(days=21, hours=10),
         ),
         Event(
             title="IU vs Purdue Rivalry Tailgate",
             category="Sports",
+            description=(
+                "The biggest rivalry in Indiana college sports. Join thousands of Hoosier fans "
+                "for the pre-game tailgate outside Memorial Stadium. Live DJ, food trucks, "
+                "face painting, and Hoosier swag giveaways. Go IU!"
+            ),
             campus="IU Bloomington",
+            event_url="https://iuhoosiers.com/sports/football",
             check_in_code="RIVTAL5",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=22, hours=12),
         ),
         Event(
             title="AI Ethics Panel Discussion",
             category="Tech",
+            description=(
+                "Explore the ethical dimensions of artificial intelligence with Luddy School "
+                "professors, a tech industry ethicist, and a policy researcher. Topics: bias "
+                "in algorithms, AI in healthcare, surveillance, and responsible innovation."
+            ),
             campus="IU Bloomington",
+            event_url="https://luddy.indiana.edu/news-events/events/index.html",
             check_in_code="AIETHIC5",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=23, hours=14),
         ),
         Event(
             title="Asian Pacific Heritage Showcase",
             category="Cultural",
+            description=(
+                "Celebrate Asian and Pacific Islander cultures through traditional dance "
+                "performances, art displays, cuisine tastings, and a spoken word showcase. "
+                "Organized by IUPUI's Asian Cultural Center — all are welcome."
+            ),
             campus="IU Indianapolis",
+            event_url="https://diversity.iupui.edu/centers/asian/events.html",
             check_in_code="APHA2025",
             points=10,
             event_date=now + timedelta(days=24, hours=16),
@@ -421,7 +571,13 @@ def seed_data(db: Session):
         Event(
             title="Free Flu Shot & Health Screening",
             category="Health",
+            description=(
+                "IU Health Services is offering free flu vaccinations, blood pressure checks, "
+                "glucose screening, and BMI assessments. No appointment needed — walk in with "
+                "your IU ID. Protect yourself and your campus community."
+            ),
             campus="IU Bloomington",
+            event_url="https://healthcenter.indiana.edu/index.html",
             check_in_code="FLUSHOOT",
             points=10,
             event_date=now + timedelta(days=25, hours=9),
@@ -429,7 +585,13 @@ def seed_data(db: Session):
         Event(
             title="Greek Life Philanthropy Fair",
             category="Social",
+            description=(
+                "IU fraternities and sororities showcase their annual philanthropy projects "
+                "and community service initiatives. Learn how to get involved, meet chapter "
+                "members, and discover volunteer opportunities across Bloomington."
+            ),
             campus="IU Bloomington",
+            event_url="https://studentlife.indiana.edu/social-opportunities/greek-life/index.html",
             check_in_code="GREEKPH5",
             points=10,
             event_date=now + timedelta(days=26, hours=11),
@@ -437,15 +599,27 @@ def seed_data(db: Session):
         Event(
             title="Resume & LinkedIn Workshop",
             category="Career",
+            description=(
+                "Career coaches from IU Indianapolis Career Services will review your resume "
+                "live and help optimize your LinkedIn profile for recruiter visibility. "
+                "Bring your laptop and a printed copy of your current resume."
+            ),
             campus="IU Indianapolis",
+            event_url="https://career.iupui.edu/channels/events/index.html",
             check_in_code="RESLINK5",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=27, hours=13),
         ),
         Event(
             title="IU Sustainability Earth Week",
             category="Social",
+            description=(
+                "A week-long series of events including a campus sustainability tour, zero-waste "
+                "cooking demo, solar energy workshop, and documentary screening of 'Kiss the "
+                "Ground'. Hosted by IU's Office of Sustainability."
+            ),
             campus="IU Bloomington",
+            event_url="https://sustain.indiana.edu/programs/earth-week.html",
             check_in_code="EARTHWK5",
             points=10,
             event_date=now + timedelta(days=28, hours=10),
@@ -453,7 +627,13 @@ def seed_data(db: Session):
         Event(
             title="International Student Welcome Mixer",
             category="Cultural",
+            description=(
+                "A warm welcome for IU's 5,000+ international students from 150+ countries. "
+                "Meet peers from around the globe, explore campus resources, and enjoy "
+                "international food and cultural performances at the IMU Grand Hall."
+            ),
             campus="IU Bloomington",
+            event_url="https://ois.iu.edu/living-in-bloomington/events.html",
             check_in_code="INTLMIX5",
             points=10,
             event_date=now + timedelta(days=29, hours=18),
@@ -461,17 +641,29 @@ def seed_data(db: Session):
         Event(
             title="Midnight Run Charity 5K",
             category="Sports",
+            description=(
+                "Lace up and run through a lit campus course starting at midnight. All proceeds "
+                "benefit the IU Food Pantry. Costumes encouraged! Timed chip race with prizes "
+                "for top 3 finishers in each age category. Registration $15 at the door."
+            ),
             campus="IU Bloomington",
+            event_url="https://recsports.indiana.edu/events/index.html",
             check_in_code="MIDRUN25",
-            points=15,
+            points=10,
             event_date=now + timedelta(days=30, hours=0),
         ),
         Event(
             title="App Development Bootcamp",
             category="Tech",
+            description=(
+                "A two-day intensive bootcamp where students build and deploy a mobile app "
+                "from scratch using React Native. Mentored by IU Southeast CS faculty and "
+                "Louisville-based software engineers. No prior mobile experience required."
+            ),
             campus="IU Southeast",
+            event_url="https://www.ius.edu/informatics/index.html",
             check_in_code="APPBOOT5",
-            points=20,
+            points=10,
             event_date=now + timedelta(days=30, hours=9),
         ),
     ]

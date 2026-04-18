@@ -171,37 +171,101 @@ components:
             std_deviation:
               type: number
               example: 14.7
-            percentile_ranks:
-              type: array
-              items:
-                type: object
-                properties:
-                  score:
-                    type: number
-                  percentile_rank:
-                    type: number
-            score_distribution:
-              type: array
-              items:
-                type: object
-                properties:
-                  range:
-                    type: string
-                    example: "10–23"
-                  count:
-                    type: integer
-                  percentage:
-                    type: number
+            variance:
+              type: number
+              example: 216.09
+            iqr:
+              type: number
+              example: 20.0
+            range_val:
+              type: number
+              example: 40.0
+            avg_events_per_student:
+              type: number
+              example: 2.4
             top_campus:
               type: string
               example: "IU Bloomington"
             most_attended_event:
               type: string
               example: "Hoosier Innovation Summit"
+            top_category:
+              type: string
+              example: "Tech"
+            most_active_day:
+              type: string
+              example: "Wednesday"
             weekly_growth_rate_pct:
               type: number
               nullable: true
               example: 23.5
+            category_breakdown:
+              type: array
+              description: Check-in count per event category this week
+              items:
+                type: object
+                properties:
+                  category:
+                    type: string
+                    example: "Tech"
+                  count:
+                    type: integer
+                    example: 8
+            percentile_ranks:
+              type: array
+              description: >
+                Four pre-computed percentile threshold rows using ceiling-index
+                selection: index = ceil((pct/100) * n) - 1
+              items:
+                type: object
+                properties:
+                  label:
+                    type: string
+                    example: "P75"
+                  description:
+                    type: string
+                    example: "Top quarter"
+                  score_range:
+                    type: string
+                    example: "20 – 30 pts"
+                  pct_range:
+                    type: string
+                    example: "50 – 75th pct"
+              example:
+                - label: "P25"
+                  description: "Bottom quarter"
+                  score_range: "10 – 10 pts"
+                  pct_range: "0 – 25th pct"
+                - label: "P50"
+                  description: "Median half"
+                  score_range: "10 – 20 pts"
+                  pct_range: "25 – 50th pct"
+                - label: "P75"
+                  description: "Top quarter"
+                  score_range: "20 – 30 pts"
+                  pct_range: "50 – 75th pct"
+                - label: "P90"
+                  description: "Top 10%"
+                  score_range: "40+ pts"
+                  pct_range: "90th pct+"
+            score_distribution:
+              type: array
+              description: Equal-width score buckets for histogram rendering
+              items:
+                type: object
+                properties:
+                  range:
+                    type: string
+                    example: "10–23"
+                  bucket:
+                    type: string
+                    example: "10–23"
+                  count:
+                    type: integer
+                    example: 5
+                  percentage:
+                    type: number
+                    example: 38.5
 
     PerformanceStats:
       type: object
@@ -446,25 +510,20 @@ paths:
   /info:
     get:
       tags: [leaderboard]
-      summary: Score statistics
+      summary: Score statistics (basic + extended)
       description: >
-        Returns quantitative statistics for all weekly scores.
-        Public: mean, median, Q1, Q3, min, max, counts.
-        Admin (with bearer token): additionally returns std_deviation,
-        percentile_ranks, score_distribution, top_campus,
-        most_attended_event, and weekly_growth_rate_pct.
-      security:
-        - bearerAuth: []
-        - {}
+        Returns full quantitative statistics for all weekly scores — always public.
+        Includes mean, median, Q1, Q3, min, max, std_deviation, variance, IQR,
+        score_distribution (histogram buckets), percentile_ranks (P25/P50/P75/P90
+        computed with ceiling-index method), category_breakdown, top_campus,
+        most_attended_event, most_active_day, and weekly_growth_rate_pct.
       responses:
         "200":
-          description: Statistics
+          description: Full statistics
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/InfoBasic'
-                  - $ref: '#/components/schemas/InfoExtended'
+                $ref: '#/components/schemas/InfoExtended'
 
   /performance:
     get:
@@ -496,6 +555,21 @@ paths:
         - bearerAuth: []
       parameters:
         - in: query
+          name: name
+          schema:
+            type: string
+          description: Partial match on student full name
+        - in: query
+          name: iu_username
+          schema:
+            type: string
+          description: Partial match on IU username
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filter by event category (e.g. Tech, Social)
+        - in: query
           name: start_date
           schema:
             type: string
@@ -507,11 +581,6 @@ paths:
             type: string
             format: date
           description: Filter submissions on or before this date (YYYY-MM-DD)
-        - in: query
-          name: iu_username
-          schema:
-            type: string
-          description: Partial match on IU username
         - in: query
           name: page
           schema:

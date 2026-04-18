@@ -6,12 +6,12 @@
   <title>EngageIU — Analytics</title>
   <link rel="stylesheet" href="/static/assets/style.css">
   <style>
-    /* ── Analytics-specific styles ──────────────────────────────────── */
+    /* ── Analytics page styles ───────────────────────────────────────── */
     .an-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 1.25rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
     .an-card {
       background: #fff;
@@ -20,172 +20,118 @@
       padding: 1.25rem 1.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .an-card .label {
-      font-size: 0.72rem;
+    .an-card .al {
+      font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: #888;
       margin-bottom: 0.4rem;
     }
-    .an-card .value {
+    .an-card .av {
       font-size: 2rem;
       font-weight: 800;
       color: #990000;
       line-height: 1;
     }
-    .an-card .sub {
-      font-size: 0.78rem;
-      color: #bbb;
-      margin-top: 0.25rem;
-    }
+    .an-card .av.neutral { color: #374151; }
 
-    .panels-row {
+    /* Insights row */
+    .an-insights {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
-    .panel {
+    .an-insight {
       background: #fff;
       border: 1px solid #e8e8e8;
       border-radius: 10px;
-      padding: 1.5rem;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .panel-title {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #888;
-      margin-bottom: 1.25rem;
-      font-weight: 700;
-    }
+    .an-insight-icon { font-size: 1.4rem; }
+    .il { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.8px; color: #9ca3af; margin-bottom: 0.2rem; }
+    .iv { font-size: 0.95rem; font-weight: 700; color: #990000; }
 
-    /* Score distribution */
-    .dist-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
-    .dist-label { font-size: 0.78rem; color: #888; width: 80px; text-align: right; flex-shrink: 0; }
-    .dist-bar-bg { flex: 1; background: #f0f0f0; border-radius: 4px; height: 20px; overflow: hidden; }
-    .dist-bar-fill { height: 100%; background: #990000; border-radius: 4px; transition: width 0.6s ease; }
-    .dist-count { font-size: 0.78rem; color: #555; width: 35px; font-weight: 600; }
-
-    /* Box plot */
-    .boxplot-header { display: flex; justify-content: space-around; margin-bottom: 0.75rem; }
-    .bpv { text-align: center; }
-    .bpv .bpv-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; }
-    .bpv .bpv-num { font-size: 1rem; font-weight: 700; color: #333; }
-    .boxplot-track {
-      position: relative;
-      height: 32px;
-      margin: 0.5rem 0;
+    /* Charts row */
+    .an-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
     }
-    .bp-line {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: #ddd;
-      transform: translateY(-50%);
-    }
-    .bp-box {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      background: #990000;
-      opacity: 0.75;
-      border-radius: 3px;
-    }
-    .bp-median {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      width: 3px;
-      background: #f59e0b;
-    }
-    .bp-foot {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      color: #aaa;
-      margin-top: 0.3rem;
-    }
-
-    /* Extra stats row */
-    .extra-row {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
+    .an-panel {
       background: #fff;
       border: 1px solid #e8e8e8;
       border-radius: 10px;
       padding: 1.25rem 1.5rem;
-      margin-bottom: 2rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .extra-stat .es-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: #aaa; }
-    .extra-stat .es-value { font-size: 1.2rem; font-weight: 700; color: #333; }
+    .an-panel-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      margin-bottom: 1rem;
+    }
+
+    /* Distribution bars */
+    .dist-bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
+    .dist-bar-label { font-size: 0.75rem; color: #6b7280; width: 75px; text-align: right; flex-shrink: 0; }
+    .dist-bar-track { flex: 1; background: #f3f4f6; border-radius: 4px; height: 18px; overflow: hidden; }
+    .dist-bar-fill  { height: 100%; background: #990000; border-radius: 4px; transition: width 0.5s ease; }
+    .dist-bar-count { font-size: 0.75rem; color: #374151; font-weight: 600; width: 28px; }
+
+    /* Category bar colours */
+    .cat-bar-fill-Tech     { background: #1d4ed8; }
+    .cat-bar-fill-Academic { background: #7c3aed; }
+    .cat-bar-fill-Career   { background: #0891b2; }
+    .cat-bar-fill-Health   { background: #b45309; }
+    .cat-bar-fill-Cultural { background: #b45309; }
+    .cat-bar-fill-Social   { background: #0f766e; }
+    .cat-bar-fill-Sports   { background: #16a34a; }
+    .cat-bar-fill-General  { background: #6b7280; }
+
+    /* Box plot */
+    .boxplot-vals { display: flex; justify-content: space-around; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
+    .boxplot-vals span { font-size: 0.75rem; color: #6b7280; }
+    .boxplot-row  { position: relative; height: 32px; margin: 0.5rem 0; }
+    .bp-line      { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: #e5e7eb; transform: translateY(-50%); }
+    .bp-box       { position: absolute; top: 0; height: 100%; background: #990000; opacity: 0.75; border-radius: 3px; }
+    .bp-median    { position: absolute; top: 0; height: 100%; width: 3px; background: #f59e0b; }
+    .bp-whisker-l,.bp-whisker-r { position: absolute; top: 20%; height: 60%; width: 2px; background: #6b7280; }
+    .boxplot-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: #aaa; margin-top: 0.25rem; }
+
+    /* Extra chips */
+    .an-extra { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+    .an-chip  { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.5rem 0.9rem; }
+    .an-chip .cl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.7px; color: #9ca3af; }
+    .an-chip .cv { font-size: 0.9rem; font-weight: 700; color: #374151; }
 
     /* Percentile table */
-    .pct-table-wrap {
-      background: #fff;
-      border: 1px solid #e8e8e8;
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      overflow-x: auto;
-    }
     .pct-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    .pct-table th { text-align: left; padding: 0.5rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; color: #888; border-bottom: 1px solid #eee; }
-    .pct-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #f5f5f5; color: #333; }
+    .pct-table th { text-align: left; padding: 0.5rem 0.75rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; color: #9ca3af; border-bottom: 1px solid #e5e7eb; font-weight: 600; }
+    .pct-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f3f4f6; color: #374151; }
     .pct-table tr:last-child td { border-bottom: none; }
 
-    /* Highlight cards */
-    .highlight-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .hi-card {
-      background: #fff;
-      border: 1px solid #e8e8e8;
-      border-radius: 10px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    .hi-card .hi-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #aaa; margin-bottom: 0.4rem; }
-    .hi-card .hi-value { font-size: 1.1rem; font-weight: 700; color: #990000; }
+    /* Loading */
+    .loading-msg { text-align: center; padding: 3rem; color: #bbb; font-size: 0.95rem; }
 
     /* Refresh badge */
-    .refresh-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.78rem;
-      color: #888;
-      margin-left: 1rem;
-    }
-    .refresh-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #22c55e;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .loading-msg { text-align: center; padding: 3rem; color: #bbb; }
+    .refresh-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #888; margin-left: 1rem; }
+    .refresh-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
     @media (max-width: 900px) {
-      .an-grid { grid-template-columns: repeat(2, 1fr); }
-      .panels-row, .highlight-row { grid-template-columns: 1fr; }
+      .an-grid, .an-insights { grid-template-columns: repeat(2, 1fr); }
+      .an-panels { grid-template-columns: 1fr; }
     }
     @media (max-width: 500px) {
-      .an-grid { grid-template-columns: 1fr 1fr; }
+      .an-grid, .an-insights { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -199,6 +145,7 @@
       <a href="/">Home</a>
       <a href="/static/events.html">Events</a>
       <a href="/static/analytics.html" class="active">Analytics</a>
+      <a href="/static/admin.html" class="admin-nav-link hidden">Admin</a>
     </div>
     <div class="nav-actions">
       <button class="btn btn-secondary btn-sm hidden" id="btn-admin-logout">Logout</button>
@@ -217,106 +164,66 @@
 </section>
 
 <!-- ── Main content ─────────────────────────────────────────────────────────── -->
-<main class="container section" id="analytics-content">
-  <div class="loading-msg" id="loading-msg">
-    <span class="spinner"></span> Loading analytics…
-  </div>
+<main class="container section">
+  <div class="loading-msg" id="loading-msg">Loading analytics…</div>
   <div id="analytics-body" style="display:none">
 
-    <!-- 4 stat cards -->
+    <!-- Row 1: Stat cards -->
     <div class="an-grid">
-      <div class="an-card">
-        <div class="label">Mean Score</div>
-        <div class="value" id="a-mean">—</div>
-        <div class="sub">avg weekly points</div>
+      <div class="an-card"><div class="al">Mean Score</div><div class="av" id="an-mean">—</div></div>
+      <div class="an-card"><div class="al">Median Score</div><div class="av" id="an-median">—</div></div>
+      <div class="an-card"><div class="al">Std Deviation</div><div class="av" id="an-std">—</div></div>
+      <div class="an-card"><div class="al">Avg Events / Student</div><div class="av neutral" id="an-avg">—</div></div>
+    </div>
+
+    <!-- Row 2: Insights -->
+    <div class="an-insights">
+      <div class="an-insight">
+        <div class="an-insight-icon">🏆</div>
+        <div class="an-insight-body"><div class="il">Top Category</div><div class="iv" id="ins-top-cat">—</div></div>
       </div>
-      <div class="an-card">
-        <div class="label">Median Score</div>
-        <div class="value" id="a-median">—</div>
-        <div class="sub">midpoint score</div>
+      <div class="an-insight">
+        <div class="an-insight-icon">📅</div>
+        <div class="an-insight-body"><div class="il">Most Active Day</div><div class="iv" id="ins-active-day">—</div></div>
       </div>
-      <div class="an-card">
-        <div class="label">Std Deviation</div>
-        <div class="value" id="a-std">—</div>
-        <div class="sub">score spread</div>
+      <div class="an-insight">
+        <div class="an-insight-icon">👥</div>
+        <div class="an-insight-body"><div class="il">Total Students</div><div class="iv" id="ins-total-students">—</div></div>
       </div>
-      <div class="an-card">
-        <div class="label">Active Students</div>
-        <div class="value" id="a-students">—</div>
-        <div class="sub">with points this week</div>
+      <div class="an-insight">
+        <div class="an-insight-icon">⭐</div>
+        <div class="an-insight-body"><div class="il">Max Score</div><div class="iv" id="ins-max-score">—</div></div>
       </div>
     </div>
 
-    <!-- Score Distribution + Box Plot -->
-    <div class="panels-row">
-      <div class="panel">
-        <div class="panel-title">Score Distribution</div>
+    <!-- Row 3: Score Distribution + Top Categories -->
+    <div class="an-panels">
+      <div class="an-panel">
+        <div class="an-panel-title">Score Distribution</div>
         <div id="dist-chart"></div>
       </div>
-      <div class="panel">
-        <div class="panel-title">Quartile Breakdown</div>
-        <div class="boxplot-header" id="bp-header"></div>
-        <div class="boxplot-track">
-          <div class="bp-line"></div>
-          <div class="bp-box" id="bp-box"></div>
-          <div class="bp-median" id="bp-median"></div>
-        </div>
-        <div class="bp-foot">
-          <span id="bp-min">Min</span>
-          <span id="bp-max">Max</span>
-        </div>
+      <div class="an-panel">
+        <div class="an-panel-title">Top Categories (Check-ins)</div>
+        <div id="cat-chart"></div>
       </div>
     </div>
 
-    <!-- Extra stats (IQR, Range, Variance) -->
-    <div class="extra-row">
-      <div class="extra-stat">
-        <div class="es-label">IQR</div>
-        <div class="es-value" id="a-iqr">—</div>
+    <!-- Row 4: Quartile Breakdown + Percentile Ranks -->
+    <div class="an-panels">
+      <div class="an-panel">
+        <div class="an-panel-title">Quartile Breakdown</div>
+        <div class="boxplot-vals" id="bp-vals"></div>
+        <div class="boxplot-row" id="bp-row"><div class="bp-line"></div></div>
+        <div class="boxplot-labels" id="bp-labels"></div>
+        <div class="an-extra" id="an-extra"></div>
       </div>
-      <div class="extra-stat">
-        <div class="es-label">Range</div>
-        <div class="es-value" id="a-range">—</div>
+      <div class="an-panel">
+        <div class="an-panel-title">Percentile Ranks</div>
+        <table class="pct-table">
+          <thead><tr><th>Percentile</th><th>Score Range</th><th>Range</th></tr></thead>
+          <tbody id="pct-tbody"><tr><td colspan="3" style="color:#9ca3af">Loading…</td></tr></tbody>
+        </table>
       </div>
-      <div class="extra-stat">
-        <div class="es-label">Variance</div>
-        <div class="es-value" id="a-variance">—</div>
-      </div>
-      <div class="extra-stat">
-        <div class="es-label">Avg Events / Student</div>
-        <div class="es-value" id="a-avg-events">—</div>
-      </div>
-      <div class="extra-stat">
-        <div class="es-label">Weekly Growth</div>
-        <div class="es-value" id="a-growth">—</div>
-      </div>
-    </div>
-
-    <!-- Highlights: top campus + most attended event -->
-    <div class="highlight-row">
-      <div class="hi-card">
-        <div class="hi-label">Top Campus (This Week)</div>
-        <div class="hi-value" id="a-top-campus">—</div>
-      </div>
-      <div class="hi-card">
-        <div class="hi-label">Most Attended Event (This Week)</div>
-        <div class="hi-value" id="a-most-event">—</div>
-      </div>
-    </div>
-
-    <!-- Percentile ranks table -->
-    <div class="pct-table-wrap">
-      <div class="panel-title" style="margin-bottom:1rem">Percentile Ranks</div>
-      <table class="pct-table">
-        <thead>
-          <tr>
-            <th>Score</th>
-            <th>Percentile Rank</th>
-            <th>Standing</th>
-          </tr>
-        </thead>
-        <tbody id="pct-tbody"></tbody>
-      </table>
     </div>
 
   </div>
@@ -354,17 +261,9 @@
 
 <script src="/static/assets/app.js"></script>
 <script>
-function escHtml(str) {
+function esc(str) {
   return String(str === null || str === undefined ? '' : str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function standing(pct) {
-  if (pct >= 90) return 'Top 10%';
-  if (pct >= 75) return 'Top 25%';
-  if (pct >= 50) return 'Above Average';
-  if (pct >= 25) return 'Below Average';
-  return 'Bottom 25%';
 }
 
 async function loadAnalytics() {
@@ -373,60 +272,82 @@ async function loadAnalytics() {
     document.getElementById('loading-msg').style.display = 'none';
     document.getElementById('analytics-body').style.display = '';
 
-    document.getElementById('a-mean').textContent = d.mean || 0;
-    document.getElementById('a-median').textContent = d.median || 0;
-    document.getElementById('a-std').textContent = d.std_deviation || 0;
-    document.getElementById('a-students').textContent = d.students_with_points_this_week || 0;
-    document.getElementById('a-iqr').textContent = d.iqr !== undefined ? d.iqr : '—';
-    document.getElementById('a-range').textContent = d.range_val !== undefined ? d.range_val : '—';
-    document.getElementById('a-variance').textContent = d.variance !== undefined ? d.variance : '—';
-    document.getElementById('a-avg-events').textContent = d.avg_events_per_student !== undefined ? d.avg_events_per_student : '—';
-    document.getElementById('a-growth').textContent = d.weekly_growth_rate_pct !== null && d.weekly_growth_rate_pct !== undefined
-      ? d.weekly_growth_rate_pct + '%' : 'N/A';
-    document.getElementById('a-top-campus').textContent = d.top_campus || 'N/A';
-    document.getElementById('a-most-event').textContent = d.most_attended_event || 'N/A';
+    // Stat cards
+    document.getElementById('an-mean').textContent   = d.mean   != null ? d.mean   : '—';
+    document.getElementById('an-median').textContent = d.median != null ? d.median : '—';
+    document.getElementById('an-std').textContent    = d.std_deviation != null ? d.std_deviation : '—';
+    document.getElementById('an-avg').textContent    = d.avg_events_per_student != null ? d.avg_events_per_student : '—';
 
-    // Score distribution
+    // Insights row
+    document.getElementById('ins-top-cat').textContent        = d.top_category || '—';
+    document.getElementById('ins-active-day').textContent     = d.most_active_day || '—';
+    document.getElementById('ins-total-students').textContent = d.total_students != null ? d.total_students : '—';
+    document.getElementById('ins-max-score').textContent      = d.max != null ? d.max + ' pts' : '—';
+
+    // Score distribution bars
     var dist = d.score_distribution || [];
-    var maxCount = 1;
-    dist.forEach(function(b) { if (b.count > maxCount) maxCount = b.count; });
+    var maxCnt = Math.max.apply(null, dist.map(function(b){ return b.count; }).concat([1]));
     document.getElementById('dist-chart').innerHTML = dist.length
       ? dist.map(function(b) {
-          var pct = Math.round(b.count / maxCount * 100);
-          return '<div class="dist-row">' +
-            '<div class="dist-label">' + escHtml(b.range) + '</div>' +
-            '<div class="dist-bar-bg"><div class="dist-bar-fill" style="width:' + pct + '%"></div></div>' +
-            '<div class="dist-count">' + b.count + '</div>' +
-          '</div>';
+          var pct = Math.round(b.count / maxCnt * 100);
+          return '<div class="dist-bar-row">' +
+            '<div class="dist-bar-label">' + esc(b.range) + '</div>' +
+            '<div class="dist-bar-track"><div class="dist-bar-fill" style="width:' + pct + '%"></div></div>' +
+            '<div class="dist-bar-count">' + b.count + '</div></div>';
         }).join('')
-      : '<p style="color:#bbb;font-size:0.9rem">No data yet.</p>';
+      : '<div style="color:#9ca3af;font-size:0.85rem;padding:1rem 0">No data yet.</div>';
+
+    // Category breakdown chart
+    var cats = d.category_breakdown || [];
+    var maxCat = Math.max.apply(null, cats.map(function(c){ return c.count; }).concat([1]));
+    document.getElementById('cat-chart').innerHTML = cats.length
+      ? cats.map(function(c) {
+          var pct = Math.round(c.count / maxCat * 100);
+          var fillClass = 'dist-bar-fill cat-bar-fill-' + (c.category || 'General').replace(/[^a-zA-Z]/g,'');
+          return '<div class="dist-bar-row">' +
+            '<div class="dist-bar-label" style="width:80px">' + esc(c.category) + '</div>' +
+            '<div class="dist-bar-track"><div class="' + fillClass + ' dist-bar-fill" style="width:' + pct + '%"></div></div>' +
+            '<div class="dist-bar-count">' + c.count + '</div></div>';
+        }).join('')
+      : '<div style="color:#9ca3af;font-size:0.85rem;padding:1rem 0">No data yet.</div>';
 
     // Box plot
-    var mn = d.min || 0, mx = d.max || 1, q1 = d.q1 || 0, q3 = d.q3 || 0, med = d.median || 0;
+    var mn = d.min || 0, mx = d.max || 100, q1 = d.q1 || 0, q3 = d.q3 || 0, med = d.median || 0;
     var rng = mx - mn || 1;
-    function pctOf(v) { return Math.max(0, Math.min(100, Math.round((v - mn) / rng * 100))); }
-    document.getElementById('bp-header').innerHTML =
-      '<div class="bpv"><div class="bpv-label">Q1</div><div class="bpv-num">' + q1 + '</div></div>' +
-      '<div class="bpv"><div class="bpv-label">Median</div><div class="bpv-num">' + med + '</div></div>' +
-      '<div class="bpv"><div class="bpv-label">Q3</div><div class="bpv-num">' + q3 + '</div></div>';
-    document.getElementById('bp-box').style.left = pctOf(q1) + '%';
-    document.getElementById('bp-box').style.width = Math.max(pctOf(q3) - pctOf(q1), 2) + '%';
-    document.getElementById('bp-median').style.left = pctOf(med) + '%';
-    document.getElementById('bp-min').textContent = 'Min: ' + mn;
-    document.getElementById('bp-max').textContent = 'Max: ' + mx;
+    var pos = function(v) { return ((v - mn) / rng * 100).toFixed(1) + '%'; };
+    document.getElementById('bp-vals').innerHTML =
+      '<span>Min ' + mn + '</span><span>Q1 ' + q1 + '</span>' +
+      '<span>Median ' + med + '</span><span>Q3 ' + q3 + '</span><span>Max ' + mx + '</span>';
+    var row = document.getElementById('bp-row');
+    row.querySelectorAll('.bp-box,.bp-median,.bp-whisker-l,.bp-whisker-r').forEach(function(el){el.remove();});
+    var wl = document.createElement('div'); wl.className = 'bp-whisker-l'; wl.style.left = pos(mn); row.appendChild(wl);
+    var wr = document.createElement('div'); wr.className = 'bp-whisker-r'; wr.style.left = pos(mx); row.appendChild(wr);
+    var box = document.createElement('div'); box.className = 'bp-box';
+    box.style.left = pos(q1); box.style.width = Math.max(parseFloat(((q3-q1)/rng*100).toFixed(1)),2) + '%'; row.appendChild(box);
+    var medEl = document.createElement('div'); medEl.className = 'bp-median'; medEl.style.left = pos(med); row.appendChild(medEl);
+    document.getElementById('bp-labels').innerHTML = '<span>' + mn + '</span><span>' + mx + '</span>';
 
-    // Percentile ranks table
-    var pctRanks = d.percentile_ranks || [];
-    var sorted = pctRanks.slice().sort(function(a, b) { return b.score - a.score; });
-    document.getElementById('pct-tbody').innerHTML = sorted.length
-      ? sorted.map(function(r) {
+    // Extra chips — no growth rate
+    var chips = [
+      {l:'IQR', v: d.iqr}, {l:'Range', v: d.range_val}, {l:'Variance', v: d.variance},
+      {l:'Top Campus', v: d.top_campus},
+      {l:'Most Attended', v: d.most_attended_event},
+    ];
+    document.getElementById('an-extra').innerHTML = chips.map(function(c) {
+      return '<div class="an-chip"><div class="cl">' + esc(c.l) + '</div><div class="cv">' + esc(c.v != null ? c.v : '—') + '</div></div>';
+    }).join('');
+
+    // Percentile ranks — rendered from backend pre-computed structure
+    var pctData = d.percentile_ranks || [];
+    document.getElementById('pct-tbody').innerHTML = pctData.length
+      ? pctData.map(function(r) {
           return '<tr>' +
-            '<td><strong>' + r.score + '</strong></td>' +
-            '<td>' + r.percentile_rank + '%</td>' +
-            '<td><span style="color:#990000;font-weight:600">' + standing(r.percentile_rank) + '</span></td>' +
+            '<td><strong>' + esc(r.label) + '</strong> <span style="color:#9ca3af;font-size:0.75rem">(' + esc(r.description) + ')</span></td>' +
+            '<td>' + esc(r.score_range) + '</td>' +
+            '<td style="color:#6b7280;font-size:0.75rem">' + esc(r.pct_range) + '</td>' +
           '</tr>';
         }).join('')
-      : '<tr><td colspan="3" style="text-align:center;color:#bbb;padding:1.5rem">No data this week yet.</td></tr>';
+      : '<tr><td colspan="3" style="color:#9ca3af;padding:1rem">No data this week yet.</td></tr>';
 
   } catch (e) {
     document.getElementById('loading-msg').textContent = 'Failed to load analytics: ' + e.message;

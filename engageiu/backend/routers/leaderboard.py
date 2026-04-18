@@ -430,6 +430,43 @@ async def get_info(
     )
     most_attended = event_row.title if event_row else None
 
+    # Category breakdown: check-ins per event category this week
+    cat_rows = (
+        db.query(
+            Event.category,
+            func.count(Attendance.id).label("checkin_count"),
+        )
+        .join(Attendance, Attendance.event_id == Event.id)
+        .filter(
+            Attendance.checked_in_at >= week_start,
+            Attendance.checked_in_at <= week_end,
+        )
+        .group_by(Event.category)
+        .order_by(func.count(Attendance.id).desc())
+        .all()
+    )
+    category_breakdown = [
+        {"category": r.category or "General", "count": r.checkin_count}
+        for r in cat_rows
+    ]
+    top_category = category_breakdown[0]["category"] if category_breakdown else None
+
+    # Most active day of week (0=Mon ... 6=Sun) across all attendance
+    all_checkins = (
+        db.query(Attendance.checked_in_at)
+        .filter(
+            Attendance.checked_in_at >= week_start,
+            Attendance.checked_in_at <= week_end,
+        )
+        .all()
+    )
+    day_counts = {}
+    day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    for (ts,) in all_checkins:
+        d = day_names[ts.weekday()]
+        day_counts[d] = day_counts.get(d, 0) + 1
+    most_active_day = max(day_counts, key=day_counts.get) if day_counts else None
+
     # Weekly growth rate: compare this week's check-ins vs last week's
     prev_start = week_start - timedelta(days=7)
     prev_end = week_start - timedelta(seconds=1)
@@ -491,6 +528,9 @@ async def get_info(
         "min": score_min,
         "max": score_max,
         "std_deviation": std_dev,
+        "category_breakdown": category_breakdown,
+        "top_category": top_category,
+        "most_active_day": most_active_day,
         "percentile_ranks": stats["percentile_ranks"],
         "score_distribution": stats["score_distribution"],
         "top_campus": top_campus,
@@ -543,6 +583,7 @@ async def get_performance(
 
 @router.get("/history", summary="Score submission history with filtering (admin, grad requirement)")
 async def get_history(
+    name: Optional[str] = Query(None, description="Filter by student name (partial match)"),
     iu_username: Optional[str] = Query(None, description="Filter by IU username (partial match)"),
     event_id: Optional[int] = Query(None, description="Filter by exact event ID"),
     category: Optional[str] = Query(None, description="Filter by event category"),
@@ -555,9 +596,7 @@ async def get_history(
 ):
     """
     Grad-team requirement: full check-in history with timestamps.
-    Returns: checkin_id, student name, iu_username, event name, event category,
-             campus, points_earned, checked_in_at.
-    Filterable by iu_username (partial), event_id, event category, and date range.
+    Filterable by name (partial), iu_username (partial), event_id, event category, and date range.
     """
     q = (
         db.query(Attendance)
@@ -565,6 +604,9 @@ async def get_history(
         .join(Event, Event.id == Attendance.event_id)
         .order_by(Attendance.checked_in_at.desc())
     )
+
+    if name:
+        q = q.filter(Student.name.ilike(f"%{name}%"))
 
     if iu_username:
         q = q.filter(Student.iu_username.ilike(f"%{iu_username}%"))

@@ -44,7 +44,13 @@
       "Bash(curl -s --max-time 5 -X POST http://localhost:8000/checkin -H 'Content-Type: application/json' -d '{\"iu_username\":\"newtest25\",\"name\":\"New Test Student\",\"campus\":\"IU Bloomington\",\"check_in_code\":\"LUDDY2025\"}')",
       "Bash(curl -s --max-time 5 http://localhost:8000/static/admin.html)",
       "Bash(curl -s --max-time 5 http://localhost:8000/static/analytics.html)",
-      "Bash(curl -s \"http://localhost:8000/performance\" -H \"Authorization: Bearer $\\(curl -s -X POST http://localhost:8000/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"admin\",\"password\":\"engageiu2025\"}')"
+      "Bash(curl -s \"http://localhost:8000/performance\" -H \"Authorization: Bearer $\\(curl -s -X POST http://localhost:8000/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"admin\",\"password\":\"engageiu2025\"}')",
+      "Bash(curl -s --max-time 5 \"http://localhost:8000/events\")",
+      "Bash(curl -s --max-time 3 http://localhost:8000/leaderboard)",
+      "Bash(curl -s \"http://localhost:8000/events\")",
+      "Bash(curl -s http://localhost:8000/info)",
+      "Bash(docker build:*)",
+      "Bash([ -f \"/Users/varunsonawane/Projects/IU Hacks/engageiu/$f\" ])"
     ]
   }
 }

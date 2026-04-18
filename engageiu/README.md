@@ -83,7 +83,7 @@ OpenAPI YAML spec: `openapi.yaml` in the project root — import directly into [
 | **POST** | **/add** | Admin | Add a leaderboard entry |
 | **DELETE** | **/remove** | Admin | Remove a leaderboard entry |
 | **GET** | **/leaderboard** | Public | Top 10 weekly leaderboard (`?format=html` for table) |
-| **GET** | **/info** | Public/Admin | Score statistics (extended stats for admin) |
+| **GET** | **/info** | Public | Score statistics — always returns full extended stats |
 | **GET** | **/performance** | Admin | Average endpoint execution times |
 | **GET** | **/history** | Admin | Score submission log with date/user filtering |
 | GET | /events | Public/Admin | List events (admin sees check-in codes) |
@@ -122,8 +122,8 @@ OpenAPI YAML spec: `openapi.yaml` in the project root — import directly into [
 ## Graduate Requirements Checklist
 
 - [x] **Docker containerization** — `Dockerfile` + `docker-compose.yml` provided
-- [x] **`/history` with filtering** — supports `start_date`, `end_date`, `iu_username` query params; paginated; sorted newest first
-- [x] **`/info` extended stats** — std_deviation, percentile_ranks (array), score_distribution (bucketed histogram), top_campus, most_attended_event, weekly_growth_rate_pct
+- [x] **`/history` with filtering** — supports `name`, `iu_username`, `category`, `start_date`, `end_date` query params; paginated; sorted newest first
+- [x] **`/info` extended stats** — std_deviation, variance, IQR, percentile_ranks (P25/P50/P75/P90 via ceiling-index), score_distribution (histogram buckets), category_breakdown, top_category, most_active_day, top_campus, most_attended_event
 - [x] **OpenAPI YAML** — `openapi.yaml` in project root, covers all required endpoints (/add, /remove, /leaderboard, /info) plus all others
 - [x] **Performance middleware** — auto-records every request to `endpoint_performance` table; no manual logging needed
 

@@ -60,20 +60,65 @@ def std_deviation(values: list[float]) -> float:
     return variance ** 0.5
 
 
-def percentile_ranks(values: list[float]) -> list[dict]:
+def percentile_ranks(scores: list[float]) -> list[dict]:
     """
-    For each value, return its percentile rank within the list.
-    percentile_rank = (number of values < x) / n * 100
+    Compute the score at each of the four key percentile thresholds (P25, P50,
+    P75, P90) using ceiling-index selection on the sorted score list:
+
+        index = ceil((pct / 100) * n) - 1
+        value = sorted_scores[index]
+
+    Returns a list of 4 dicts ready to render directly in the frontend table.
+    Edge-cases:
+      - Empty list  → empty list
+      - n < 4       → still computed (index is clamped to valid range)
+      - All equal   → all ranges show the same value (correct behaviour)
     """
-    if not values:
+    if not scores:
         return []
-    n = len(values)
-    result = []
-    for v in values:
-        count_below = sum(1 for x in values if x < v)
-        pct = round(count_below / n * 100, 1)
-        result.append({"score": v, "percentile_rank": pct})
-    return result
+
+    import math
+    s = sorted(scores)
+    n = len(s)
+    score_min = int(s[0])
+    score_max = int(s[-1])
+
+    def at_pct(pct: int) -> int:
+        idx = math.ceil((pct / 100) * n) - 1
+        idx = max(0, min(idx, n - 1))
+        return int(s[idx])
+
+    p25 = at_pct(25)
+    p50 = at_pct(50)
+    p75 = at_pct(75)
+    p90 = at_pct(90)
+
+    return [
+        {
+            "label": "P25",
+            "description": "Bottom quarter",
+            "score_range": f"{score_min} \u2013 {p25} pts",
+            "pct_range": "0 \u2013 25th pct",
+        },
+        {
+            "label": "P50",
+            "description": "Median half",
+            "score_range": f"{p25} \u2013 {p50} pts",
+            "pct_range": "25 \u2013 50th pct",
+        },
+        {
+            "label": "P75",
+            "description": "Top quarter",
+            "score_range": f"{p50} \u2013 {p75} pts",
+            "pct_range": "50 \u2013 75th pct",
+        },
+        {
+            "label": "P90",
+            "description": "Top 10%",
+            "score_range": f"{p90}+ pts",
+            "pct_range": "90th pct+",
+        },
+    ]
 
 
 def score_distribution(values: list[float], num_buckets: int = 5) -> list[dict]:
@@ -102,8 +147,10 @@ def score_distribution(values: list[float], num_buckets: int = 5) -> list[dict]:
     for i, count in enumerate(buckets):
         bucket_lo = lo + i * bucket_size
         bucket_hi = lo + (i + 1) * bucket_size
+        label = f"{int(bucket_lo)}\u2013{int(bucket_hi)}"
         result.append({
-            "range": f"{int(bucket_lo)}–{int(bucket_hi)}",
+            "bucket": label,
+            "range": label,   # keep for backward compat with analytics.html
             "count": count,
             "percentage": round(count / n * 100, 1),
         })
