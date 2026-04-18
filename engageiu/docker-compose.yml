@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=engageiu2025
+      - DATABASE_URL=sqlite:///./data/engageiu.db
+      - SECRET_KEY=engageiu_secret_key_change_in_prod
+    restart: unless-stopped
