@@ -1,6 +1,6 @@
-# EngageIU — Campus Event Attendance Leaderboard
+# EngageIU : Campus Event Attendance Leaderboard
 
-Built for the **Luddy Hacks 24-Hour Hackathon** — Dynamic Leaderboard/Ranking System case (Graduate Team).
+Built for the **Luddy Hacks 24-Hour Hackathon** : Dynamic Leaderboard/Ranking System case (Graduate Team).
 
 Students earn points by entering event check-in codes after attending IU events. A weekly leaderboard ranks participants by total points, with live updates via Server-Sent Events. Admins manage everything through a protected dashboard.
 
