@@ -313,7 +313,7 @@ tags:
 
 paths:
 
-  # ── AUTH ──────────────────────────────────────────────────────────────────
+
 
   /auth/login:
     post:
@@ -348,7 +348,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  # ── CORE LEADERBOARD ENDPOINTS (required by case PDF) ────────────────────
+
 
   /add:
     post:
@@ -615,7 +615,6 @@ paths:
         "401":
           description: Unauthorized
 
-  # ── EVENTS ───────────────────────────────────────────────────────────────
 
   /events:
     get:
@@ -779,7 +778,7 @@ paths:
         "404":
           description: Event not found
 
-  # ── STUDENT CHECK-IN ──────────────────────────────────────────────────────
+  
 
   /checkin:
     post:
@@ -841,7 +840,7 @@ paths:
         "409":
           description: Already checked in to this event
 
-  # ── STUDENTS ──────────────────────────────────────────────────────────────
+ 
 
   /students/search:
     get:
