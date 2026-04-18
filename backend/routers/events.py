@@ -3,8 +3,10 @@ Events CRUD, check-in endpoint, and student search.
 """
 from __future__ import annotations
 
+import asyncio
 import secrets
 import string
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -36,6 +38,24 @@ def normalize_url(url: Optional[str]) -> Optional[str]:
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
     return url
+
+
+def _sync_check_url(url: str) -> bool:
+    """Synchronous URL reachability check (HEAD then GET fallback). Returns True if reachable."""
+    headers = {"User-Agent": "EngageIU/1.0"}
+    for method in ("HEAD", "GET"):
+        try:
+            req = urllib.request.Request(url, method=method, headers=headers)
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                return resp.status < 400
+        except Exception:
+            continue
+    return False
+
+
+async def _check_url(url: str) -> bool:
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, _sync_check_url, url)
 
 
 def utcnow():
@@ -154,6 +174,10 @@ async def create_event(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid event_date format. Use ISO 8601.")
 
+    event_url = normalize_url(body.event_url)
+    if event_url and not await _check_url(event_url):
+        raise HTTPException(status_code=400, detail=f"Event URL is not reachable: {event_url}")
+
     # Ensure unique code
     for _ in range(10):
         code = generate_code()
@@ -165,7 +189,7 @@ async def create_event(
         description=body.description,
         category=body.category,
         campus=body.campus,
-        event_url=normalize_url(body.event_url),
+        event_url=event_url,
         check_in_code=code,
         points=body.points,
         event_date=event_date,
@@ -210,7 +234,10 @@ async def update_event(
     if body.campus is not None:
         event.campus = body.campus
     if body.event_url is not None:
-        event.event_url = normalize_url(body.event_url)
+        event_url = normalize_url(body.event_url)
+        if event_url and not await _check_url(event_url):
+            raise HTTPException(status_code=400, detail=f"Event URL is not reachable: {event_url}")
+        event.event_url = event_url
     if body.points is not None:
         event.points = body.points
     if body.event_date is not None:
@@ -387,6 +414,36 @@ async def admin_update_student(
     db.commit()
     return {"id": student.id, "bonus_points": student.bonus_points}
 
+
+
+@router.post("/admin/verify-event-urls", summary="Check all event URLs and remove broken ones (admin)")
+async def verify_event_urls(
+    db: Session = Depends(get_db),
+    _admin: str = Depends(verify_admin_token),
+):
+    events = db.query(Event).filter(Event.event_url.isnot(None)).all()
+    removed = []
+    kept = []
+    for event in events:
+        url = normalize_url(event.event_url)
+        if not url:
+            event.event_url = None
+            removed.append({"id": event.id, "title": event.title, "url": event.event_url})
+            continue
+        ok = await _check_url(url)
+        if ok:
+            event.event_url = url  # normalize in place
+            kept.append({"id": event.id, "title": event.title, "url": url})
+        else:
+            removed.append({"id": event.id, "title": event.title, "url": url})
+            event.event_url = None
+    db.commit()
+    return {
+        "checked": len(events),
+        "valid": len(kept),
+        "removed": len(removed),
+        "removed_events": removed,
+    }
 
 
 @router.get("/admin/event-codes", summary="List all event codes (admin)")
