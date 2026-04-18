@@ -212,11 +212,11 @@ h1, h2, h3 { line-height: 1.2; }
 }
 .filter-bar input:focus,
 .filter-bar select:focus { border-color: var(--crimson); }
-.filter-bar input { flex: 1; min-width: 160px; }
+.filter-bar input:not([type="checkbox"]) { flex: 1; min-width: 160px; }
 
 input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   accent-color: var(--crimson);
   cursor: pointer;
   flex-shrink: 0;

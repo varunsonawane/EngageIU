@@ -54,8 +54,8 @@
       <option>IU Columbus</option>
       <option>IU Fort Wayne</option>
     </select>
-    <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.9rem;color:#555;cursor:pointer">
-      <input type="checkbox" id="upcoming-toggle" checked> Upcoming only
+    <label style="display:flex;align-items:center;gap:0.5rem;font-size:1.15rem;color:#555;cursor:pointer;font-weight:500;margin-left:auto">
+      <input type="checkbox" id="upcoming-toggle"> Show Past Events
     </label>
   </div>
 
@@ -189,7 +189,8 @@ document.getElementById('ev-campus').innerHTML = campusOptions(false);
 
 async function loadEvents() {
   const campus = document.getElementById('campus-filter').value;
-  const upcomingOnly = document.getElementById('upcoming-toggle').checked;
+  const showPast = document.getElementById('upcoming-toggle').checked;
+  const upcomingOnly = !showPast;
 
   let url = '/events?upcoming_only=' + upcomingOnly;
   if (campus) url += '&campus=' + encodeURIComponent(campus);
