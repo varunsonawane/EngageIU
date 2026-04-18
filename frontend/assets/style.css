@@ -336,11 +336,7 @@ body.home-page {
 .container {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 1.25rem;
-}
-
-.section {
-  padding: 2.5rem 0;
+  padding: 2.25rem;
 }
 
 .section-header {
@@ -408,17 +404,19 @@ input[type="checkbox"] {
   background: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  padding: 1.75rem 1rem 0;
+  padding: 1.75rem 0 0;
   margin-bottom: 1.5rem;
-  overflow: hidden;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  overflow: visible;
 }
 
 .podium-stage {
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: stretch;
   gap: 0.5rem;
-  padding: 1rem;
+  padding: 0 0.75rem;
 }
 
 .podium-spot {
@@ -426,8 +424,85 @@ input[type="checkbox"] {
   flex-direction: column;
   align-items: center;
   flex: 1;
-  max-width: 240px;
   min-width: 0;
+  position: relative;
+}
+
+.podium-more {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--light-gray);
+  color: var(--mid-gray);
+  border-radius: 99px;
+  padding: 0.1rem 0.5rem;
+  margin-top: 0.2rem;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.podium-more:hover {
+  background: var(--crimson);
+  color: #fff;
+}
+
+.podium-popover {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--light-gray);
+  padding: 0.5rem 0.65rem;
+  z-index: 50;
+  min-width: 180px;
+  text-align: left;
+}
+
+.podium-popover.open {
+  display: block;
+}
+
+.podium-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.podium-popover-item:last-child {
+  border-bottom: none;
+}
+
+.podium-popover-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--crimson);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.podium-popover-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--dark);
+  white-space: nowrap;
+}
+
+.podium-popover-sub {
+  font-size: 0.72rem;
+  color: var(--mid-gray);
 }
 
 .podium-info {
@@ -436,6 +511,7 @@ input[type="checkbox"] {
   align-items: center;
   padding-bottom: 0.6rem;
   animation: podFadeIn 0.5s ease both;
+  position: relative;
 }
 
 .podium-medal {
@@ -1477,13 +1553,6 @@ input[type="checkbox"] {
     flex-direction: column;
   }
 
-  .container {
-    padding: 0 1rem;
-  }
-
-  .section {
-    padding: 1.75rem 0;
-  }
 
   .section-header {
     flex-direction: column;

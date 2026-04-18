@@ -320,7 +320,7 @@ async def get_leaderboard(
             raise HTTPException(status_code=400, detail="Invalid week date format. Use YYYY-MM-DD.")
 
     week_start, week_end = _week_bounds(ref)
-    rows = _leaderboard_rows(db, week_start, week_end, campus=campus, limit=10)
+    rows = _leaderboard_rows(db, week_start, week_end, campus=campus, limit=100)
 
     prev_start = week_start - timedelta(days=7)
     prev_end = week_start - timedelta(seconds=1)
@@ -425,7 +425,7 @@ async def leaderboard_stream(
             db = SessionLocal()
             try:
                 week_start, week_end = _week_bounds()
-                rows = _leaderboard_rows(db, week_start, week_end, campus=campus)
+                rows = _leaderboard_rows(db, week_start, week_end, campus=campus, limit=100)
                 prev_start = week_start - timedelta(days=7)
                 prev_end = week_start - timedelta(seconds=1)
                 prev_rows = _leaderboard_rows(db, prev_start, prev_end, limit=200)
