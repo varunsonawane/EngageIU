@@ -83,7 +83,24 @@ app.include_router(leaderboard.router, tags=["leaderboard"])
 app.include_router(events.router, tags=["events"])
 
 # ── Static frontend files ─────────────────────────────────────────────────
-FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
+# FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
+if os.path.isdir(FRONTEND_DIR):
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
+    @app.get("/", include_in_schema=False)
+    async def serve_index():
+        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+
+    @app.get("/events-page", include_in_schema=False)
+    async def serve_events():
+        return FileResponse(os.path.join(FRONTEND_DIR, "events.html"))
+
+    @app.get("/admin", include_in_schema=False)
+    async def serve_admin():
+        return FileResponse(os.path.join(FRONTEND_DIR, "admin.html"))
 if os.path.isdir(FRONTEND_DIR):
     app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
