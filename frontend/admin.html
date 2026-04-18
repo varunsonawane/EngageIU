@@ -239,6 +239,22 @@
       .an-grid   { grid-template-columns:1fr; }
       .an-insights { grid-template-columns:1fr; }
     }
+    .pts-preset {
+      padding: 0.2rem 0.55rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1.5px solid #d1d5db;
+      border-radius: 6px;
+      background: #f9fafb;
+      color: #374151;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .pts-preset:hover, .pts-preset.active {
+      background: #990000;
+      border-color: #990000;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -526,8 +542,17 @@
       </div>
       <div class="adm-form-row">
         <div class="adm-form-group">
-          <label>Points</label>
-          <input type="number" id="em-points" value="10" min="1" max="100" required>
+          <label>Points Reward
+            <span style="font-size:0.75rem;font-weight:400;color:#888;margin-left:4px">— more points = more important event</span>
+          </label>
+          <input type="number" id="em-points" value="10" min="1" required>
+          <div style="display:flex;gap:0.35rem;margin-top:0.4rem;flex-wrap:wrap">
+            <button type="button" class="pts-preset" data-pts="5">5 — Minor</button>
+            <button type="button" class="pts-preset" data-pts="10">10 — Standard</button>
+            <button type="button" class="pts-preset" data-pts="25">25 — Important</button>
+            <button type="button" class="pts-preset" data-pts="50">50 — Major</button>
+            <button type="button" class="pts-preset" data-pts="100">100 — Flagship</button>
+          </div>
         </div>
         <div class="adm-form-group">
           <label>Date &amp; Time</label>
@@ -662,8 +687,10 @@ function renderStudents(list) {
     tbody.innerHTML = '<tr class="empty-row"><td colspan="10">No students found.</td></tr>';
     return;
   }
-  tbody.innerHTML = list.map(function(s, i) {
-    var rank = i + 1;
+  var denseRank = 0, prevPts = null;
+  tbody.innerHTML = list.map(function(s) {
+    if (s.weekly_points !== prevPts) { denseRank++; prevPts = s.weekly_points; }
+    var rank = denseRank;
     var rankHtml = rank <= 3
       ? '<span style="color:#ffd54f;font-weight:800">#' + rank + '</span>'
       : '<span class="dim">#' + rank + '</span>';
@@ -705,8 +732,10 @@ document.getElementById('student-search').addEventListener('input', function() {
 document.getElementById('btn-export-csv').addEventListener('click', function() {
   if (!allStudents.length) return;
   var hdr = 'Rank,Name,Username,Campus,Major,Year,WeeklyPoints,EventsAttended,Joined';
-  var rows = allStudents.map(function(s, i) {
-    return [i+1,'"'+s.name+'"',s.iu_username,'"'+s.campus+'"',s.major||'',s.year||'',s.weekly_points,s.events_attended,s.created_at?s.created_at.slice(0,10):''].join(',');
+  var csvRank = 0, csvPrevPts = null;
+  var rows = allStudents.map(function(s) {
+    if (s.weekly_points !== csvPrevPts) { csvRank++; csvPrevPts = s.weekly_points; }
+    return [csvRank,'"'+s.name+'"',s.iu_username,'"'+s.campus+'"',s.major||'',s.year||'',s.weekly_points,s.events_attended,s.created_at?s.created_at.slice(0,10):''].join(',');
   });
   var blob = new Blob([[hdr].concat(rows).join('\n')], {type:'text/csv'});
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -834,11 +863,27 @@ var editingEventId = null;
 
 function openEventModal() {
   document.getElementById('event-modal').classList.add('open');
+  syncPtsPresets();
 }
 function closeEventModal() {
   document.getElementById('event-modal').classList.remove('open');
   document.getElementById('em-err').textContent = '';
 }
+
+// Points preset buttons
+function syncPtsPresets() {
+  var cur = parseInt(document.getElementById('em-points').value, 10);
+  document.querySelectorAll('.pts-preset').forEach(function(btn) {
+    btn.classList.toggle('active', parseInt(btn.dataset.pts, 10) === cur);
+  });
+}
+document.querySelectorAll('.pts-preset').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.getElementById('em-points').value = this.dataset.pts;
+    syncPtsPresets();
+  });
+});
+document.getElementById('em-points').addEventListener('input', syncPtsPresets);
 
 document.getElementById('btn-verify-urls').addEventListener('click', async function() {
   const btn = this;
