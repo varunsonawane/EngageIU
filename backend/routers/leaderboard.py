@@ -90,14 +90,20 @@ def _leaderboard_rows(
 
     rows = q.limit(limit).all()
     result = []
-    for rank, row in enumerate(rows, start=1):
+    dense_rank = 0
+    prev_points = None
+    for row in rows:
+        pts = int(row.total_points)
+        if pts != prev_points:
+            dense_rank += 1
+            prev_points = pts
         result.append({
-            "rank": rank,
+            "rank": dense_rank,
             "student_id": row.id,
             "name": row.name,
             "iu_username": row.iu_username,
             "campus": row.campus,
-            "total_points": int(row.total_points),
+            "total_points": pts,
             "events_attended": int(row.events_attended),
         })
     return result
