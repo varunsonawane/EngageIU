@@ -67,8 +67,8 @@
             <div class="podium-pts"   id="pod-pts-2"></div>
             <div class="podium-evts"  id="pod-evts-2"></div>
             <div class="podium-more"  id="pod-more-2" style="display:none"></div>
-            <div class="podium-popover" id="pod-popover-2"></div>
           </div>
+          <div class="podium-popover" id="pod-popover-2"></div>
           <div class="podium-block">2</div>
         </div>
         <!-- 1st place (centre) -->
@@ -80,8 +80,8 @@
             <div class="podium-pts"   id="pod-pts-1"></div>
             <div class="podium-evts"  id="pod-evts-1"></div>
             <div class="podium-more"  id="pod-more-1" style="display:none"></div>
-            <div class="podium-popover" id="pod-popover-1"></div>
           </div>
+          <div class="podium-popover" id="pod-popover-1"></div>
           <div class="podium-block">1</div>
         </div>
         <!-- 3rd place (right) -->
@@ -93,8 +93,8 @@
             <div class="podium-pts"   id="pod-pts-3"></div>
             <div class="podium-evts"  id="pod-evts-3"></div>
             <div class="podium-more"  id="pod-more-3" style="display:none"></div>
-            <div class="podium-popover" id="pod-popover-3"></div>
           </div>
+          <div class="podium-popover" id="pod-popover-3"></div>
           <div class="podium-block">3</div>
         </div>
       </div>
@@ -220,7 +220,9 @@
       var group = podiumGroups[rank];
       if (!group || group.length <= 1) return;
       var popover = document.getElementById('pod-popover-' + rank);
-      if (!popover) return;
+      var badge  = document.getElementById('pod-more-' + rank);
+      if (!popover || !badge) return;
+      // Build content first
       popover.innerHTML = group.slice(1).map(function(p) {
         return '<div class="podium-popover-item">' +
           '<div class="podium-popover-avatar">' + getInitials(p.name) + '</div>' +
@@ -230,7 +232,17 @@
           '</div>' +
         '</div>';
       }).join('');
+      // Anchor at 0,0 first so offsetWidth is measured correctly, then reposition
+      popover.style.left = '0px';
+      popover.style.top = '0px';
+      popover.style.transform = 'none';
       popover.classList.add('open');
+      var rect = badge.getBoundingClientRect();
+      var popW = popover.offsetWidth || 200;
+      var left = rect.left + rect.width / 2 - popW / 2;
+      left = Math.max(8, Math.min(left, window.innerWidth - popW - 8));
+      popover.style.top  = (rect.bottom + 6) + 'px';
+      popover.style.left = left + 'px';
     }
 
     // Close on outside click

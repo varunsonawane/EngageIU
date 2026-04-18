@@ -449,10 +449,7 @@ input[type="checkbox"] {
 
 .podium-popover {
   display: none;
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
