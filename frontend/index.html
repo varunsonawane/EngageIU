@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/static/assets/style.css">
 </head>
 
-<body>
+<body class="home-page">
 
   <nav class="nav">
     <div class="nav-inner">
@@ -32,19 +32,18 @@
   </nav>
 
   <section class="hero">
-    <h1>Attend events. Earn points. <span>Top the board.</span></h1>
-    <p>Enter your event code after attending any IU event and climb the weekly leaderboard. Every check-in counts.</p>
+    <h1>Attend events.<br>Earn points.<br><span>Top the board.</span></h1>
+    <p>Enter your event code after attending any IU event<br>and climb the weekly leaderboard. Every check-in counts.</p>
     <div class="hero-cta">
-      <button class="btn btn-secondary btn-lg" onclick="openModal('checkin-modal')">Check In Now</button>
-      <a href="/static/events.html" class="btn btn-outline btn-lg"
-        style="color:#fff;border-color:rgba(255,255,255,0.5);">Find Events</a>
+      <button class="btn btn-hero-primary btn-lg" onclick="openModal('checkin-modal')">Check In Now &nbsp;→</button>
+      <a href="/static/events.html" class="btn btn-hero-outline btn-lg">Find Events</a>
     </div>
   </section>
 
-  <main class="container section">
+  <main class="container section home-card">
     <div class="section-header">
       <div>
-        <h2 class="section-title">This Week's Top Hoosiers</h2>
+        <h2 class="section-title">🏆 This Week's Top Hoosiers</h2>
         <p class="section-subtitle" id="week-label">Loading...</p>
       </div>
       <div class="refresh-label">
@@ -53,6 +52,45 @@
         </span>
         <a href="/leaderboard/export" download class="btn btn-outline btn-sm" style="font-size:0.78rem;padding:0.2rem 0.65rem">Export CSV</a>
         <a href="/leaderboard?format=html" target="_blank" class="btn btn-outline btn-sm" style="font-size:0.78rem;padding:0.2rem 0.65rem">HTML View</a>
+      </div>
+    </div>
+
+    <!-- ── Top 3 Podium ─────────────────────────────────────── -->
+    <div id="podium-section" class="podium-wrap" style="display:none">
+      <div class="podium-stage">
+        <!-- 2nd place (left) -->
+        <div class="podium-spot spot-2" id="podium-spot-2">
+          <div class="podium-info">
+            <div class="podium-medal silver">2</div>
+            <div class="podium-avatar" id="pod-avatar-2"></div>
+            <div class="podium-name"  id="pod-name-2"></div>
+            <div class="podium-pts"   id="pod-pts-2"></div>
+            <div class="podium-evts"  id="pod-evts-2"></div>
+          </div>
+          <div class="podium-block">2</div>
+        </div>
+        <!-- 1st place (centre) -->
+        <div class="podium-spot spot-1" id="podium-spot-1">
+          <div class="podium-info">
+            <div class="podium-medal gold">1</div>
+            <div class="podium-avatar" id="pod-avatar-1"></div>
+            <div class="podium-name"  id="pod-name-1"></div>
+            <div class="podium-pts"   id="pod-pts-1"></div>
+            <div class="podium-evts"  id="pod-evts-1"></div>
+          </div>
+          <div class="podium-block">1</div>
+        </div>
+        <!-- 3rd place (right) -->
+        <div class="podium-spot spot-3" id="podium-spot-3">
+          <div class="podium-info">
+            <div class="podium-medal bronze">3</div>
+            <div class="podium-avatar" id="pod-avatar-3"></div>
+            <div class="podium-name"  id="pod-name-3"></div>
+            <div class="podium-pts"   id="pod-pts-3"></div>
+            <div class="podium-evts"  id="pod-evts-3"></div>
+          </div>
+          <div class="podium-block">3</div>
+        </div>
       </div>
     </div>
 
@@ -160,6 +198,40 @@
     let searchMode = false;
     let searchTimer = null;
     let sseSource = null;
+    let podiumAnimated = false;
+
+    function getInitials(name) {
+      return name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    }
+
+    function renderPodium(rows) {
+      const section = document.getElementById('podium-section');
+      if (!rows || rows.length === 0) { section.style.display = 'none'; return; }
+      section.style.display = '';
+
+      [1, 2, 3].forEach(function(rank) {
+        var data = rows[rank - 1];
+        var spot = document.getElementById('podium-spot-' + rank);
+        if (!spot) return;
+        if (!data) { spot.style.visibility = 'hidden'; return; }
+        spot.style.visibility = '';
+        document.getElementById('pod-avatar-' + rank).textContent = getInitials(data.name);
+        document.getElementById('pod-name-'   + rank).textContent = data.name;
+        document.getElementById('pod-pts-'    + rank).textContent = data.total_points + ' pts';
+        document.getElementById('pod-evts-'   + rank).textContent = data.events_attended + ' event' + (data.events_attended !== 1 ? 's' : '');
+      });
+
+      if (!podiumAnimated) {
+        podiumAnimated = true;
+      } else {
+        // Re-trigger animations on SSE update
+        section.querySelectorAll('.podium-block, .podium-info, .podium-avatar').forEach(function(el) {
+          el.style.animation = 'none';
+          void el.offsetWidth;
+          el.style.animation = '';
+        });
+      }
+    }
 
     const lbBodyEl = document.getElementById('lb-body');
     const weekLabelEl = document.getElementById('week-label');
@@ -187,6 +259,7 @@
     }
 
     function renderLeaderboard(rows) {
+      renderPodium(rows);
       if (!rows || rows.length === 0) {
         lbBodyEl.innerHTML = '<tr><td colspan="6" class="text-center" style="padding:2rem;color:#999">No entries yet this week.</td></tr>';
         return;
