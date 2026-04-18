@@ -28,6 +28,16 @@ def generate_code(length: int = 8) -> str:
     return "".join(secrets.choice(ALPHANUMERIC) for _ in range(length))
 
 
+def normalize_url(url: Optional[str]) -> Optional[str]:
+    """Ensure URL has a scheme; prepend https:// if missing."""
+    if not url or not url.strip():
+        return None
+    url = url.strip()
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    return url
+
+
 def utcnow():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
@@ -155,7 +165,7 @@ async def create_event(
         description=body.description,
         category=body.category,
         campus=body.campus,
-        event_url=body.event_url,
+        event_url=normalize_url(body.event_url),
         check_in_code=code,
         points=body.points,
         event_date=event_date,
@@ -200,7 +210,7 @@ async def update_event(
     if body.campus is not None:
         event.campus = body.campus
     if body.event_url is not None:
-        event.event_url = body.event_url
+        event.event_url = normalize_url(body.event_url)
     if body.points is not None:
         event.points = body.points
     if body.event_date is not None:
